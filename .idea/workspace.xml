@@ -19,6 +19,7 @@
     <option name="NEW_BASE" value="main" />
   </component>
   <component name="Git.Settings">
+    <branch-grouping />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="primary" />
@@ -1426,7 +1427,7 @@
       <workItem from="1725511216360" duration="1143000" />
       <workItem from="1725512369479" duration="635000" />
       <workItem from="1725513008973" duration="46000" />
-      <workItem from="1725513102487" duration="511000" />
+      <workItem from="1725513102487" duration="845000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -1473,7 +1474,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="origin/main" />
                       </list>
                     </value>
                   </entry>

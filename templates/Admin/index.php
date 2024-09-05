@@ -5,7 +5,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Line Charts</h5>
+              <h5 class="card-title">Line Chart</h5>
 
               <!-- Line Chart -->
               <canvas id="lineChart" style="max-height: 400px;"></canvas>
