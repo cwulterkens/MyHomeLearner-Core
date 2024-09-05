@@ -1,0 +1,60 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Audit $audit
+ */
+?>
+<div class="row">
+    <aside class="column">
+        <div class="side-nav">
+            <h4 class="heading"><?= __('Actions') ?></h4>
+            <?= $this->Html->link(__('Edit Audit'), ['action' => 'edit', $audit->id], ['class' => 'side-nav-item']) ?>
+            <?= $this->Form->postLink(__('Delete Audit'), ['action' => 'delete', $audit->id], ['confirm' => __('Are you sure you want to delete # {0}?', $audit->id), 'class' => 'side-nav-item']) ?>
+            <?= $this->Html->link(__('List Audits'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
+            <?= $this->Html->link(__('New Audit'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
+        </div>
+    </aside>
+    <div class="column-responsive column-80">
+        <div class="audits view content">
+            <h3><?= h($audit->id) ?></h3>
+            <table>
+                <tr>
+                    <th><?= __('Id') ?></th>
+                    <td><?= h($audit->id) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Message') ?></th>
+                    <td><?= h($audit->message) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('User') ?></th>
+                    <td><?= $audit->has('user') ? $this->Html->link($audit->user->id, ['controller' => 'Users', 'action' => 'view', $audit->user->id]) : '' ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Record Id') ?></th>
+                    <td><?= h($audit->record_id) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Component Name') ?></th>
+                    <td><?= h($audit->component_name) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Action Name') ?></th>
+                    <td><?= h($audit->action_name) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Ip') ?></th>
+                    <td><?= h($audit->ip) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Created') ?></th>
+                    <td><?= h($audit->created) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Modified') ?></th>
+                    <td><?= h($audit->modified) ?></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
