@@ -18,7 +18,16 @@ class FileTypesController extends AppController
      */
     public function index()
     {
+        $this->paginate = [
+            'order' => ['name' => 'ASC'] // Order by name field in ascending order
+        ];
+
         $fileTypes = $this->paginate($this->FileTypes);
+
+        // Perform authorization checks on the paginated results
+        foreach ($fileTypes as $fileType) {
+            $this->Authorization->authorize($fileType);
+        }
 
         $this->set(compact('fileTypes'));
     }
@@ -35,6 +44,7 @@ class FileTypesController extends AppController
         $fileType = $this->FileTypes->get($id, [
             'contain' => ['Files'],
         ]);
+        $this->Authorization->authorize($fileType);
 
         $this->set(compact('fileType'));
     }
@@ -47,6 +57,7 @@ class FileTypesController extends AppController
     public function add()
     {
         $fileType = $this->FileTypes->newEmptyEntity();
+        $this->Authorization->authorize($fileType);
         if ($this->request->is('post')) {
             $fileType = $this->FileTypes->patchEntity($fileType, $this->request->getData());
             if ($this->FileTypes->save($fileType)) {
@@ -56,6 +67,7 @@ class FileTypesController extends AppController
             }
             $this->Flash->error(__('The file type could not be saved. Please, try again.'));
         }
+
         $this->set(compact('fileType'));
     }
 
@@ -71,6 +83,7 @@ class FileTypesController extends AppController
         $fileType = $this->FileTypes->get($id, [
             'contain' => [],
         ]);
+        $this->Authorization->authorize($fileType);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $fileType = $this->FileTypes->patchEntity($fileType, $this->request->getData());
             if ($this->FileTypes->save($fileType)) {
@@ -80,6 +93,7 @@ class FileTypesController extends AppController
             }
             $this->Flash->error(__('The file type could not be saved. Please, try again.'));
         }
+
         $this->set(compact('fileType'));
     }
 
@@ -94,6 +108,9 @@ class FileTypesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $fileType = $this->FileTypes->get($id);
+
+        $this->Authorization->authorize($fileType);
+
         if ($this->FileTypes->delete($fileType)) {
             $this->Flash->success(__('The file type has been deleted.'));
         } else {
