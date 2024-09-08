@@ -8,5 +8,4 @@ tmp/*
 tmp/debug_kit.sqlite
 webroot/generated/*
 webroot/uploads/*
-/.idea/workspace.xml
 tmp/debug_kit.sqlite
