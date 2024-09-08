@@ -83,7 +83,7 @@ return [
      * See app.php for more configuration options.
      */
     'EmailTransport' => [
-        'test' => [
+        'default' => [
             'className' => 'Smtp',
             'host' => 'smtp-relay.brevo.com',
             'port' => 587,
@@ -93,9 +93,9 @@ return [
             'tls' => true,
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
         ],
-        'default' => [
+        'test' => [
             'className' => 'Smtp',
-            'host' => 'mhltest-mailhog',
+            'host' => 'mailhog',
             'port' => 1025,
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
         ],
