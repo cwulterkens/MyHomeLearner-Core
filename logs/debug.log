@@ -9438,3 +9438,38 @@ Cake\Http\Runner->run() /var/www/html/vendor/cakephp/cakephp/src/Http/Server.php
 Cake\Http\Server->run() /var/www/html/webroot/index.php, line 40
 [main]
 
+2024-09-08 10:59:10 notice: number_format(): Passing null to parameter #1 ($num) of type float is deprecated
+Request URL: /learners/pdf/f8632e5d-9365-41b4-bfea-33ad482ee4ae
+Referer URL: https://dev.myhomelearner.com/learners/view/f8632e5d-9365-41b4-bfea-33ad482ee4ae
+Client IP: 172.70.178.16
+Trace:
+/var/www/html/templates/Learners/pdf/pdf.php /var/www/html/templates/Learners/pdf/pdf.php, line 149
+/var/www/html/vendor/cakephp/cakephp/src/View/View.php /var/www/html/vendor/cakephp/cakephp/src/View/View.php, line 1222
+Cake\View\View->_evaluate() /var/www/html/vendor/cakephp/cakephp/src/View/View.php, line 1179
+Cake\View\View->_render() /var/www/html/vendor/cakephp/cakephp/src/View/View.php, line 810
+Cake\View\View->render() /var/www/html/vendor/friendsofcake/cakepdf/src/View/PdfView.php, line 107
+CakePdf\View\PdfView->render() /var/www/html/src/Controller/LearnersController.php, line 274
+App\Controller\LearnersController->pdf() /var/www/html/vendor/cakephp/cakephp/src/Controller/Controller.php, line 560
+Cake\Controller\Controller->invokeAction() /var/www/html/vendor/cakephp/cakephp/src/Controller/ControllerFactory.php, line 140
+Cake\Controller\ControllerFactory->handle() /var/www/html/vendor/cakephp/cakephp/src/Controller/ControllerFactory.php, line 115
+Cake\Controller\ControllerFactory->invoke() /var/www/html/vendor/cakephp/cakephp/src/Http/BaseApplication.php, line 325
+Cake\Http\BaseApplication->handle() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 86
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/authorization/src/Middleware/AuthorizationMiddleware.php, line 129
+Authorization\Middleware\AuthorizationMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/authentication/src/Middleware/AuthenticationMiddleware.php, line 124
+Authentication\Middleware\AuthenticationMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/cakephp/src/Http/Middleware/BodyParserMiddleware.php, line 157
+Cake\Http\Middleware\BodyParserMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/cakephp/src/Routing/Middleware/RoutingMiddleware.php, line 189
+Cake\Routing\Middleware\RoutingMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/cakephp/src/Routing/Middleware/AssetMiddleware.php, line 68
+Cake\Routing\Middleware\AssetMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/cakephp/src/Error/Middleware/ErrorHandlerMiddleware.php, line 149
+Cake\Error\Middleware\ErrorHandlerMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/debug_kit/src/Middleware/DebugKitMiddleware.php, line 60
+DebugKit\Middleware\DebugKitMiddleware->process() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 82
+Cake\Http\Runner->handle() /var/www/html/vendor/cakephp/cakephp/src/Http/Runner.php, line 67
+Cake\Http\Runner->run() /var/www/html/vendor/cakephp/cakephp/src/Http/Server.php, line 99
+Cake\Http\Server->run() /var/www/html/webroot/index.php, line 40
+[main]
+

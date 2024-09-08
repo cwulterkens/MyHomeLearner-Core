@@ -93,10 +93,10 @@ class LearnersController extends AppController
         ]);
 
         // Check if learner belongs to the current user
-        if ($learner->user_id !== $currentUser) {
-            $this->Flash->error(__('Access denied.'));
-            return $this->redirect(['action' => 'index']);
-        }
+        //if ($learner->user_id !== $currentUser) {
+        //    $this->Flash->error(__('Access denied.'));
+        //    return $this->redirect(['action' => 'index']);
+        //}
 
         // Authorize the action
         $this->Authorization->authorize($learner);

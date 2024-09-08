@@ -1,1 +1,12 @@
 /.idea/*
+logs/*
+config/app.php
+config/app_local.php
+config/bootstrap.php
+config/paths.php
+tmp/*
+tmp/debug_kit.sqlite
+webroot/generated/*
+webroot/uploads/*
+/.idea
+tmp/debug_kit.sqlite

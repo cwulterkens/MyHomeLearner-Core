@@ -499,7 +499,7 @@
 
     <div class="pagetitle">
         <?php if ($currentUser->active == 1): ?>
-            <div class="message success">You are currently part of the beta group with free access through June 2024!</div>
+            <div class="message success">You are currently part of the beta group with free access through June 2025!</div>
         <?php endif; ?>
 
         <?= $this->Flash->render() ?>
@@ -521,7 +521,7 @@
         &copy; Copyright <strong><span>MyHomeLearner</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-        Developed by <a href="https://www.wulterkens.tech/" target="_blank">Wulterkens Technology Solutions</a>
+        Developed by <a href="https://www.wulterkens.me/" target="_blank">Wulterkens Development</a>
     </div>
 </footer><!-- End Footer -->
 

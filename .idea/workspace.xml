@@ -22,7 +22,7 @@
     <branch-grouping />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="primary" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -1406,9 +1406,13 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected="PHPUnit.Main">
+  <component name="RunManager" selected="PHPUnit.MyHomeLearner">
     <configuration name="Main" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
       <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="MyHomeLearner" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner directory="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
     <configuration name="tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
@@ -1417,6 +1421,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.MyHomeLearner" />
         <item itemvalue="PHPUnit.tests" />
       </list>
     </recent_temporary>
@@ -1445,7 +1450,8 @@
       <workItem from="1725512369479" duration="635000" />
       <workItem from="1725513008973" duration="46000" />
       <workItem from="1725513102487" duration="845000" />
-      <workItem from="1725513983646" duration="33000" />
+      <workItem from="1725513983646" duration="2202000" />
+      <workItem from="1725810928253" duration="6399000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -1455,7 +1461,55 @@
       <option name="project" value="LOCAL" />
       <updated>1725510930624</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="&#10;&#10;&#10;update">
+      <option name="closed" value="true" />
+      <created>1725514110985</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1725514110985</updated>
+    </task>
+    <task id="LOCAL-00003" summary="&#10;&#10;&#10;update ignore">
+      <option name="closed" value="true" />
+      <created>1725514150429</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1725514150429</updated>
+    </task>
+    <task id="LOCAL-00004" summary="&#10;&#10;&#10;update ignore">
+      <option name="closed" value="true" />
+      <created>1725514179578</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1725514179578</updated>
+    </task>
+    <task id="LOCAL-00005" summary="update ignore">
+      <option name="closed" value="true" />
+      <created>1725514259628</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1725514259628</updated>
+    </task>
+    <task id="LOCAL-00006" summary="update ignore">
+      <option name="closed" value="true" />
+      <created>1725826863359</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1725826863359</updated>
+    </task>
+    <task id="LOCAL-00007" summary="update ignore">
+      <option name="closed" value="true" />
+      <created>1725827012724</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1725827012724</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1507,7 +1561,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="&#10;&#10;&#10;update" />
+    <MESSAGE value="&#10;&#10;&#10;update ignore" />
+    <MESSAGE value="update ignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="update ignore" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

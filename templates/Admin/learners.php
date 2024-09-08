@@ -23,7 +23,7 @@
                         <tbody>
                         <?php foreach ($learners as $learner) : ?>
                             <tr>
-                                <td class="align-middle"><?= h($learner->last_name) ?>, <?= h($learner->first_name) ?> <?php if($learner->graduated == 1): ?><span class="badge bg-success text-light"><i class="bi bi-check-circle me-1"></i> Graduated</span><?php endif; ?> <?php if($learner->user->active == 0): ?><span class="badge bg-info text-dark"><i class="bi bi-info-circle me-1"></i> Inactive</span><?php endif; ?><div><code><?= h($learner->id) ?></code></div></td>
+                                <td class="align-middle"><?= h($learner->last_name) ?>, <?= h($learner->first_name) ?> <?php if($learner->graduated == 1): ?><span class="badge bg-success text-light"><i class="bi bi-check-circle me-1"></i> Graduated</span><?php endif; ?> <?php if($learner->status == 0): ?><span class="badge bg-info text-dark"><i class="bi bi-info-circle me-1"></i> Inactive</span><?php endif; ?><div><code><?= h($learner->id) ?></code></div></td>
                                 <td class="d-none align-middle d-lg-table-cell"><?= h($learner->courseCount) ?></td>
                                 <td class="d-none align-middle d-lg-table-cell"><?= h($learner->activityCount) ?></td>
                                 <td class="d-none align-middle d-lg-table-cell"><?= h($learner->honorCount) ?></td>
