@@ -92,7 +92,3 @@ define('CAKE_CORE_INCLUDE_PATH', ROOT . DS . 'vendor' . DS . 'cakephp' . DS . 'c
  */
 define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 define('CAKE', CORE_PATH . 'src' . DS);
-
-//defined("STRIPE_KEY") || define('STRIPE_KEY', "xpk_test_51MuGpF2HhyAahgTEwI9Fimwnd8BBlLQlVyHrBqSU0Fxzz6S9Ie324UCIwxRqUXi7r2EBY2Dg5Lmz9IJ9UyynF3DB009QYf5H2u");
-//defined("STRIPE_SECRET") || define('STRIPE_SECRET', "xsk_test_51MuGpF2HhyAahgTEmnoxCOLSamNRWJClk4zm4tMu2DW2z8EZlIMPVSGbCv6RrL0ivnjDu05QAivkXN0jKkpIjv5g00ohcydlBZ");
-
