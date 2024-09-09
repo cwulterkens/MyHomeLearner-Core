@@ -1,6 +1,5 @@
 /.idea/*
 /logs/*
-/config/app.php
 /config/app_local.php
 /config/bootstrap.php
 /config/paths.php
@@ -8,4 +7,3 @@
 /tmp/debug_kit.sqlite
 /webroot/generated/*
 /webroot/uploads/*
-/tmp/debug_kit.sqlite
