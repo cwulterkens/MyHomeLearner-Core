@@ -95,3 +95,4 @@ define('CAKE', CORE_PATH . 'src' . DS);
 
 defined("STRIPE_KEY") || define('STRIPE_KEY', "pk_test_51MuGpF2HhyAahgTEwI9Fimwnd8BBlLQlVyHrBqSU0Fxzz6S9Ie324UCIwxRqUXi7r2EBY2Dg5Lmz9IJ9UyynF3DB009QYf5H2u");
 defined("STRIPE_SECRET") || define('STRIPE_SECRET', "sk_test_51MuGpF2HhyAahgTEmnoxCOLSamNRWJClk4zm4tMu2DW2z8EZlIMPVSGbCv6RrL0ivnjDu05QAivkXN0jKkpIjv5g00ohcydlBZ");
+
