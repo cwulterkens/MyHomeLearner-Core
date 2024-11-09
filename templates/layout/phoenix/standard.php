@@ -206,8 +206,8 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="/users/view/<?php echo $currentUser->id?>">
-                            <i class="bi bi-person-badge"></i>
-                            <span>Account Details</span>
+                            <i class="bi bi-gear"></i>
+                            <span>Account Settings</span>
                         </a>
                     </li>
                     <li>
@@ -498,8 +498,8 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <?php if ($currentUser->active == 1): ?>
-            <div class="message success">You are currently part of the beta group with free access through June 2025!</div>
+        <?php if ($currentUser->active == 0): ?>
+            <div class="message success">You are currently part of the beta group with free access through June 2024!</div>
         <?php endif; ?>
 
         <?= $this->Flash->render() ?>
@@ -521,7 +521,7 @@
         &copy; Copyright <strong><span>MyHomeLearner</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-        Developed by <a href="https://www.wulterkens.me/" target="_blank">Wulterkens Development</a>
+        Developed by <a href="https://www.wulterkens.tech/" target="_blank">Wulterkens Technology Solutions</a>
     </div>
 </footer><!-- End Footer -->
 
@@ -553,6 +553,21 @@
 
 <!-- Template Main JS File -->
 <?= $this->Html->script(['/phoenix/js/main']) ?>
+
+<!-- SUPPORT CHAT -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://support.wulterkens.tech/assets/chat/chat.min.js"></script>
+<script>
+$(function() {
+  new ZammadChat({
+    title: '<strong>Chat With Us!</strong>',
+    background: '#4da1e5',
+    fontSize: '12px',
+    flat: true,
+    chatId: 1
+  });
+});
+</script>
 
 <script>
 (function() {

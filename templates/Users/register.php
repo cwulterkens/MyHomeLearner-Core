@@ -5,7 +5,6 @@
     <!-- Favicons -->
     <link href="/phoenix/img/favicon.png" rel="icon">
     <link href="/phoenix/img/apple-touch-icon.png" rel="apple-touch-icon">
-    <link rel="manifest" href="/site.webmanifest">
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">

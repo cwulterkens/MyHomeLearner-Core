@@ -76,18 +76,13 @@ final class TlsHelper
 
         if (isset($info['extensions']['subjectAltName'])) {
             $subjectAltNames = Preg::split('{\s*,\s*}', $info['extensions']['subjectAltName']);
-            $subjectAltNames = array_filter(
-                array_map(static function ($name): ?string {
-                    if (0 === strpos($name, 'DNS:')) {
-                        return strtolower(ltrim(substr($name, 4)));
-                    }
-
-                    return null;
-                }, $subjectAltNames),
-                function (?string $san) {
-                    return $san !== null;
+            $subjectAltNames = array_filter(array_map(static function ($name): ?string {
+                if (0 === strpos($name, 'DNS:')) {
+                    return strtolower(ltrim(substr($name, 4)));
                 }
-            );
+
+                return null;
+            }, $subjectAltNames));
             $subjectAltNames = array_values($subjectAltNames);
         }
 
@@ -150,7 +145,7 @@ final class TlsHelper
         $pemtrim = substr($pubkeypem, strpos($pubkeypem, $start) + strlen($start), (strlen($pubkeypem) - strpos($pubkeypem, $end)) * (-1));
         $der = base64_decode($pemtrim);
 
-        return hash('sha1', $der);
+        return sha1($der);
     }
 
     /**

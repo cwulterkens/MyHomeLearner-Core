@@ -16,7 +16,7 @@ class GradesController extends AppController
     public function index()
     {
         $this->paginate = [
-            'limit' => 100, // or another limit that suits your application
+            'limit' => 10, // or another limit that suits your application
             // Add other pagination settings if necessary
         ];
 

@@ -12,7 +12,6 @@
 
 namespace Composer\Console;
 
-use Composer\Installer;
 use Composer\IO\NullIO;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
@@ -33,7 +32,6 @@ use Seld\JsonLint\ParsingException;
 use Composer\Command;
 use Composer\Composer;
 use Composer\Factory;
-use Composer\Downloader\TransportException;
 use Composer\IO\IOInterface;
 use Composer\IO\ConsoleIO;
 use Composer\Json\JsonValidationException;
@@ -43,7 +41,6 @@ use Composer\EventDispatcher\ScriptExecutionException;
 use Composer\Exception\NoSslException;
 use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
-use Composer\Util\Http\ProxyManager;
 
 /**
  * The console application that handles the commands
@@ -218,12 +215,12 @@ class Application extends BaseApplication
         $needsSudoCheck = !Platform::isWindows()
             && function_exists('exec')
             && !Platform::getEnv('COMPOSER_ALLOW_SUPERUSER')
-            && !Platform::isDocker();
+            && (ini_get('open_basedir') || !file_exists('/.dockerenv'));
         $isNonAllowedRoot = false;
 
         // Clobber sudo credentials if COMPOSER_ALLOW_SUPERUSER is not set before loading plugins
         if ($needsSudoCheck) {
-            $isNonAllowedRoot = $this->isRunningAsRoot();
+            $isNonAllowedRoot = function_exists('posix_getuid') && posix_getuid() === 0;
 
             if ($isNonAllowedRoot) {
                 if ($uid = (int) Platform::getEnv('SUDO_UID')) {
@@ -295,9 +292,8 @@ class Application extends BaseApplication
             $this->hasPluginCommands = true;
         }
 
-        if (!$this->disablePluginsByDefault && $isNonAllowedRoot && !$io->isInteractive()) {
-            $io->writeError('<error>Composer plugins have been disabled for safety in this non-interactive session.</error>');
-            $io->writeError('<error>Set COMPOSER_ALLOW_SUPERUSER=1 if you want to allow plugins to run as root/super user.</error>');
+        if ($isNonAllowedRoot && !$io->isInteractive()) {
+            $io->writeError('<error>Composer plugins have been disabled for safety in this non-interactive session. Set COMPOSER_ALLOW_SUPERUSER=1 if you want to allow plugins to run as root/super user.</error>');
             $this->disablePluginsByDefault = true;
         }
 
@@ -321,7 +317,7 @@ class Application extends BaseApplication
                 function_exists('php_uname') ? php_uname('s') . ' / ' . php_uname('r') : 'Unknown OS'
             ), true, IOInterface::DEBUG);
 
-            if (\PHP_VERSION_ID < 70205) {
+            if (PHP_VERSION_ID < 70205) {
                 $io->writeError('<warning>Composer supports PHP 7.2.5 and above, you will most likely encounter problems with your PHP '.PHP_VERSION.'. Upgrading is strongly recommended but you can use Composer 2.2.x LTS as a fallback.</warning>');
             }
 
@@ -348,7 +344,7 @@ class Application extends BaseApplication
             // Check system temp folder for usability as it can cause weird runtime issues otherwise
             Silencer::call(static function () use ($io): void {
                 $pid = function_exists('getmypid') ? getmypid() . '-' : '';
-                $tempfile = sys_get_temp_dir() . '/temp-' . $pid . bin2hex(random_bytes(5));
+                $tempfile = sys_get_temp_dir() . '/temp-' . $pid . md5(microtime());
                 if (!(file_put_contents($tempfile, __FILE__) && (file_get_contents($tempfile) === __FILE__) && unlink($tempfile) && !file_exists($tempfile))) {
                     $io->writeError(sprintf('<error>PHP temp directory (%s) does not exist or is not writable to Composer. Set sys_temp_dir in your php.ini</error>', sys_get_temp_dir()));
                 }
@@ -369,9 +365,7 @@ class Application extends BaseApplication
                                     $description = $composer['scripts-descriptions'][$script];
                                 }
 
-                                $aliases = $composer['scripts-aliases'][$script] ?? [];
-
-                                $this->add(new Command\ScriptAliasCommand($script, $description, $aliases));
+                                $this->add(new Command\ScriptAliasCommand($script, $description));
                             }
                         }
                     }
@@ -380,8 +374,6 @@ class Application extends BaseApplication
         }
 
         try {
-            $proxyManager = ProxyManager::getInstance();
-
             if ($input->hasParameterOption('--profile')) {
                 $startTime = microtime(true);
                 $this->io->enableDebugging($startTime);
@@ -389,35 +381,17 @@ class Application extends BaseApplication
 
             $result = parent::doRun($input, $output);
 
-            if (true === $input->hasParameterOption(['--version', '-V'], true)) {
-                $io->writeError(sprintf('<info>PHP</info> version <comment>%s</comment> (%s)', \PHP_VERSION, \PHP_BINARY));
-                $io->writeError('Run the "diagnose" command to get more detailed diagnostics output.');
-            }
-
             // chdir back to $oldWorkingDir if set
             if (isset($oldWorkingDir) && '' !== $oldWorkingDir) {
                 Silencer::call('chdir', $oldWorkingDir);
             }
 
             if (isset($startTime)) {
-                $io->writeError('<info>Memory usage: '.round(memory_get_usage() / 1024 / 1024, 2).'MiB (peak: '.round(memory_get_peak_usage() / 1024 / 1024, 2).'MiB), time: '.round(microtime(true) - $startTime, 2).'s</info>');
-            }
-
-            if ($proxyManager->needsTransitionWarning()) {
-                $io->writeError('');
-                $io->writeError('<warning>Composer now requires separate proxy environment variables for HTTP and HTTPS requests.</warning>');
-                $io->writeError('<warning>Please set `https_proxy` in addition to your existing proxy environment variables.</warning>');
-                $io->writeError('<warning>This fallback (and warning) will be removed in Composer 2.8.0.</warning>');
-                $io->writeError('<warning>https://getcomposer.org/doc/faqs/how-to-use-composer-behind-a-proxy.md</warning>');
+                $io->writeError('<info>Memory usage: '.round(memory_get_usage() / 1024 / 1024, 2).'MiB (peak: '.round(memory_get_peak_usage() / 1024 / 1024, 2).'MiB), time: '.round(microtime(true) - $startTime, 2).'s');
             }
 
             return $result;
         } catch (ScriptExecutionException $e) {
-            if ($this->getDisablePluginsByDefault() && $this->isRunningAsRoot() && !$this->io->isInteractive()) {
-                $io->writeError('<error>Plugins have been disabled automatically as you are running as root, this may be the cause of the script failure.</error>', true, IOInterface::QUIET);
-                $io->writeError('<error>See also https://getcomposer.org/root</error>', true, IOInterface::QUIET);
-            }
-
             return $e->getCode();
         } catch (\Throwable $e) {
             $ghe = new GithubActionError($this->io);
@@ -436,14 +410,6 @@ class Application extends BaseApplication
                 }
 
                 return max(1, $e->getCode());
-            }
-
-            // override TransportException's code for the purpose of parent::run() using it as process exit code
-            // as http error codes are all beyond the 255 range of permitted exit codes
-            if ($e instanceof TransportException) {
-                $reflProp = new \ReflectionProperty($e, 'code');
-                $reflProp->setAccessible(true);
-                $reflProp->setValue($e, Installer::ERROR_TRANSPORT_EXCEPTION);
             }
 
             throw $e;
@@ -493,11 +459,6 @@ class Application extends BaseApplication
         }
         Silencer::restore();
 
-        if ($exception instanceof TransportException && str_contains($exception->getMessage(), 'Unable to use a proxy')) {
-            $io->writeError('<error>The following exception indicates your proxy is misconfigured</error>', true, IOInterface::QUIET);
-            $io->writeError('<error>Check https://getcomposer.org/doc/faqs/how-to-use-composer-behind-a-proxy.md for details</error>', true, IOInterface::QUIET);
-        }
-
         if (Platform::isWindows() && false !== strpos($exception->getMessage(), 'The system cannot find the path specified')) {
             $io->writeError('<error>The following exception may be caused by a stale entry in your cmd.exe AutoRun</error>', true, IOInterface::QUIET);
             $io->writeError('<error>Check https://getcomposer.org/doc/articles/troubleshooting.md#-the-system-cannot-find-the-path-specified-windows- for details</error>', true, IOInterface::QUIET);
@@ -511,12 +472,6 @@ class Application extends BaseApplication
         if ($exception instanceof ProcessTimedOutException) {
             $io->writeError('<error>The following exception is caused by a process timeout</error>', true, IOInterface::QUIET);
             $io->writeError('<error>Check https://getcomposer.org/doc/06-config.md#process-timeout for details</error>', true, IOInterface::QUIET);
-        }
-
-        if ($this->getDisablePluginsByDefault() && $this->isRunningAsRoot() && !$this->io->isInteractive()) {
-            $io->writeError('<error>Plugins have been disabled automatically as you are running as root, this may be the cause of the following exception. See also https://getcomposer.org/root</error>', true, IOInterface::QUIET);
-        } elseif ($exception instanceof CommandNotFoundException && $this->getDisablePluginsByDefault()) {
-            $io->writeError('<error>Plugins have been disabled, which may be why some commands are missing, unless you made a typo</error>', true, IOInterface::QUIET);
         }
 
         $hints = HttpDownloader::getExceptionHints($exception);
@@ -702,16 +657,6 @@ class Application extends BaseApplication
         return $this->initialWorkingDirectory;
     }
 
-    public function getDisablePluginsByDefault(): bool
-    {
-        return $this->disablePluginsByDefault;
-    }
-
-    public function getDisableScriptsByDefault(): bool
-    {
-        return $this->disableScriptsByDefault;
-    }
-
     /**
      * @return 'prompt'|bool
      */
@@ -720,10 +665,5 @@ class Application extends BaseApplication
         $config = Factory::createConfig($this->io);
 
         return $config->get('use-parent-dir');
-    }
-
-    private function isRunningAsRoot(): bool
-    {
-        return function_exists('posix_getuid') && posix_getuid() === 0;
     }
 }

@@ -19,7 +19,6 @@ $cakeDescription = 'MyHomeLearner - Homeschool Education Records ';
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="/site.webmanifest" rel="manifest">
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>

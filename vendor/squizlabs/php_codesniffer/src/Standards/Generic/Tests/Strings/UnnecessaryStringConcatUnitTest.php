@@ -4,19 +4,14 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\Strings;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-/**
- * Unit test class for the UnnecessaryStringConcat sniff.
- *
- * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Strings\UnnecessaryStringConcatSniff
- */
-final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
+class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -30,10 +25,10 @@ final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='')
+    public function getErrorList($testFile='UnnecessaryStringConcatUnitTest.inc')
     {
         switch ($testFile) {
-        case 'UnnecessaryStringConcatUnitTest.1.inc':
+        case 'UnnecessaryStringConcatUnitTest.inc':
             return [
                 2  => 1,
                 6  => 1,
@@ -42,7 +37,7 @@ final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
                 19 => 1,
                 20 => 1,
             ];
-
+            break;
         case 'UnnecessaryStringConcatUnitTest.js':
             return [
                 1  => 1,
@@ -51,9 +46,10 @@ final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
                 14 => 1,
                 15 => 1,
             ];
-
+            break;
         default:
             return [];
+            break;
         }//end switch
 
     }//end getErrorList()
@@ -65,21 +61,11 @@ final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of warnings that should occur on that line.
      *
-     * @param string $testFile The name of the file being tested.
-     *
      * @return array<int, int>
      */
-    public function getWarningList($testFile='')
+    public function getWarningList()
     {
-        switch ($testFile) {
-        case 'UnnecessaryStringConcatUnitTest.1.inc':
-            return [
-                33 => 1,
-            ];
-
-        default:
-            return [];
-        }
+        return [];
 
     }//end getWarningList()
 

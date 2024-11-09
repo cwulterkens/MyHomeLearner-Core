@@ -118,12 +118,14 @@ class RequestsTable extends Table
                 return;
             }
 
-            $query = $this->Panels->deleteQuery()
+            $query = $this->Panels->query()
+                ->delete()
                 ->where(['request_id NOT IN' => $noPurge]);
             $statement = $query->execute();
             $statement->closeCursor();
 
-            $query = $this->deleteQuery()
+            $query = $this->query()
+                ->delete()
                 ->where(['id NOT IN' => $noPurge]);
 
             $statement = $query->execute();

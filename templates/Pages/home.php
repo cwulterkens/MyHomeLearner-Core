@@ -61,7 +61,7 @@
 <body>
 <main>
     <!-- Hero -->
-    <section class="section section-header pb-md-8">
+    <section class="section section-header text-dark pb-md-8">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-10 text-center mb-5 mb-md-7">
@@ -92,12 +92,12 @@
                 <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
                     <div class="card border-0 bg-white text-center p-1">
                         <div class="card-header bg-white border-0 pb-0">
-                            <div class="icon icon-lg text-dark icon-primary mb-4" style="font-size: 2rem">
+                            <div class="icon icon-lg icon-primary mb-4">
                                 <span class="fas fa-check-square"></span>
                             </div>
                             <h2 class="h3 text-dark m-0">Accurate</h2>
                         </div>
-                        <div class="card-body text-dark">
+                        <div class="card-body">
                             <p>
                                 Maintain detailed and specific records of your homeschooler's educational journey.
                             </p>
@@ -107,12 +107,12 @@
                 <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
                     <div class="card border-0 bg-white text-center p-1">
                         <div class="card-header bg-white border-0 pb-0">
-                            <div class="icon icon-lg text-dark icon-primary mb-4" style="font-size: 2rem">
+                            <div class="icon icon-lg icon-primary mb-4">
                                 <span class="fas fa-folder-open"></span>
                             </div>
                             <h2 class="h3 text-dark m-0">Comprehensive</h2>
                         </div>
-                        <div class="card-body text-dark">
+                        <div class="card-body">
                             <p>
                                 Your journey includes activities, jobs and more.  Your records should too.
                             </p>
@@ -122,12 +122,12 @@
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card border-0 bg-white text-center p-1">
                         <div class="card-header bg-white border-0 pb-0">
-                            <div class="icon icon-lg text-dark icon-primary mb-4" style="font-size: 2rem">
+                            <div class="icon icon-lg icon-primary mb-4">
                                 <span class="fas fa-bolt"></span>
                             </div>
                             <h2 class="h3 text-dark m-0">Efficient</h2>
                         </div>
-                        <div class="card-body text-dark">
+                        <div class="card-body">
                             <p>
                                 We make record keeping easy both at home, and when you are on the go.
                             </p>
@@ -310,7 +310,7 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 
 <!-- Swipe JS -->
-<script src="/phoenix/js/swipe.js"></script>
+<script src="/phoenix/assets/js/swipe.js"></script>
 
 </body>
 

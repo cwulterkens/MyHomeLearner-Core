@@ -1,8 +1,7 @@
-<?php /** @noinspection PhpComposerExtensionStubsInspection */
+<?php
 
 namespace Jasny\Twig;
 
-use DateTime;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -25,8 +24,10 @@ class DateExtension extends AbstractExtension
 
     /**
      * Return extension name
+     *
+     * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return 'jasny/date';
     }
@@ -34,9 +35,9 @@ class DateExtension extends AbstractExtension
     /**
      * Callback for Twig to get all the filters.
      *
-     * @return TwigFilter[]
+     * @return \Twig\TwigFilter[]
      */
-    public function getFilters(): array
+    public function getFilters()
     {
         return [
             new TwigFilter('localdate', [$this, 'localDate']),
@@ -50,22 +51,17 @@ class DateExtension extends AbstractExtension
     /**
      * Turn a value into a DateTime object
      *
-     * @param string|int|DateTime $input
-     * @return DateTime
-     *
-     * @throws \DateMalformedStringException
-     * @throws RuntimeError
+     * @param string|int|\DateTime $date
+     * @return \DateTime
      */
-    protected function valueToDateTime($input): DateTime
+    protected function valueToDateTime($date)
     {
-        if ($input instanceof DateTime) {
-            return $input;
+        if (!$date instanceof \DateTime) {
+            $date = is_int($date) ? \DateTime::createFromFormat('U', $date) : new \DateTime((string)$date);
         }
 
-        $date = is_int($input) ? DateTime::createFromFormat('U', (string)$input) : new DateTime($input);
-
         if ($date === false) {
-            throw new RuntimeError("Invalid date '$input'");
+            throw new RuntimeError("Invalid date '$date'");
         }
 
         return $date;
@@ -73,31 +69,40 @@ class DateExtension extends AbstractExtension
 
     /**
      * Get configured intl date formatter.
+     *
+     * @param string|null $dateFormat
+     * @param string|null $timeFormat
+     * @param string      $calendar
+     * @return \IntlDateFormatter
      */
-    protected function getDateFormatter(?string $dateFormat, ?string $timeFormat, string $calendar): \IntlDateFormatter
+    protected function getDateFormatter($dateFormat, $timeFormat, $calendar)
     {
-        $dateType = isset($dateFormat) ? $this->getFormat($dateFormat) : null;
-        $timeType = isset($timeFormat) ? $this->getFormat($timeFormat) : null;
+        $datetype = isset($dateFormat) ? $this->getFormat($dateFormat) : null;
+        $timetype = isset($timeFormat) ? $this->getFormat($timeFormat) : null;
 
         $calendarConst = $calendar === 'traditional' ? \IntlDateFormatter::TRADITIONAL : \IntlDateFormatter::GREGORIAN;
 
         $pattern = $this->getDateTimePattern(
-            $dateType ?? $dateFormat,
-            $timeType ?? $timeFormat,
+            isset($datetype) ? $datetype : $dateFormat,
+            isset($timetype) ? $timetype : $timeFormat,
             $calendarConst
         );
 
-        return new \IntlDateFormatter(\Locale::getDefault(), $dateType, $timeType, null, $calendarConst, $pattern);
+        return new \IntlDateFormatter(\Locale::getDefault(), $datetype, $timetype, null, $calendarConst, $pattern);
     }
 
     /**
      * Format the date/time value as a string based on the current locale
      *
-     * @param string $format  'short', 'medium', 'long', 'full', 'none' or false
+     * @param string|false $format  'short', 'medium', 'long', 'full', 'none' or false
      * @return int|null
      */
-    protected function getFormat(string $format): ?int
+    protected function getFormat($format)
     {
+        if ($format === false) {
+            $format = 'none';
+        }
+
         $types = [
             'none' => \IntlDateFormatter::NONE,
             'short' => \IntlDateFormatter::SHORT,
@@ -106,26 +111,26 @@ class DateExtension extends AbstractExtension
             'full' => \IntlDateFormatter::FULL
         ];
 
-        return $types[$format] ?? null;
+        return isset($types[$format]) ? $types[$format] : null;
     }
 
     /**
      * Get the date/time pattern.
      *
-     * @param int|string|null $dateType
-     * @param int|string|null $timeType
-     * @param int $calendar
+     * @param int|string $datetype
+     * @param int|string $timetype
+     * @param int        $calendar
      * @return string
      */
-    protected function getDateTimePattern($dateType, $timeType, int $calendar = \IntlDateFormatter::GREGORIAN): ?string
+    protected function getDateTimePattern($datetype, $timetype, $calendar = \IntlDateFormatter::GREGORIAN)
     {
-        if (is_int($dateType) && is_int($timeType)) {
+        if (is_int($datetype) && is_int($timetype)) {
             return null;
         }
 
         return $this->getDatePattern(
-            $dateType ?? \IntlDateFormatter::SHORT,
-            $timeType ?? \IntlDateFormatter::SHORT,
+            isset($datetype) ? $datetype : \IntlDateFormatter::SHORT,
+            isset($timetype) ? $timetype : \IntlDateFormatter::SHORT,
             $calendar
         );
     }
@@ -133,20 +138,17 @@ class DateExtension extends AbstractExtension
     /**
      * Get the formatter to create a date and/or time pattern
      *
-     * @param int|string $dateType
-     * @param int|string $timeType
+     * @param int|string $datetype
+     * @param int|string $timetype
      * @param int        $calendar
      * @return \IntlDateFormatter
      */
-    protected function getDatePatternFormatter(
-        $dateType,
-        $timeType,
-        int $calendar = \IntlDateFormatter::GREGORIAN
-    ): \IntlDateFormatter {
+    protected function getDatePatternFormatter($datetype, $timetype, $calendar = \IntlDateFormatter::GREGORIAN)
+    {
         return \IntlDateFormatter::create(
             \Locale::getDefault(),
-            is_int($dateType) ? $dateType : \IntlDateFormatter::NONE,
-            is_int($timeType) ? $timeType : \IntlDateFormatter::NONE,
+            is_int($datetype) ? $datetype : \IntlDateFormatter::NONE,
+            is_int($timetype) ? $timetype : \IntlDateFormatter::NONE,
             \IntlTimeZone::getGMT(),
             $calendar
         );
@@ -156,41 +158,37 @@ class DateExtension extends AbstractExtension
      * Get the date and/or time pattern
      * Default date pattern is short date pattern with 4 digit year.
      *
-     * @param int|string $dateType
-     * @param int|string $timeType
-     * @param int $calendar
+     * @param int|string $datetype
+     * @param int|string $timetype
+     * @param int        $calendar
      * @return string
      */
-    protected function getDatePattern($dateType, $timeType, int $calendar = \IntlDateFormatter::GREGORIAN): string
+    protected function getDatePattern($datetype, $timetype, $calendar = \IntlDateFormatter::GREGORIAN)
     {
         $createPattern =
-            (is_int($dateType) && $dateType !== \IntlDateFormatter::NONE) ||
-            (is_int($timeType) && $timeType !== \IntlDateFormatter::NONE);
+            (is_int($datetype) && $datetype !== \IntlDateFormatter::NONE) ||
+            (is_int($timetype) && $timetype !== \IntlDateFormatter::NONE);
 
-        $pattern = $createPattern ? $this->getDatePatternFormatter($dateType, $timeType, $calendar)->getPattern() : '';
+        $pattern = $createPattern ? $this->getDatePatternFormatter($datetype, $timetype, $calendar)->getPattern() : '';
 
         return trim(
-            (is_string($dateType) ? $dateType . ' ' : '') .
+            (is_string($datetype) ? $datetype . ' ' : '') .
             preg_replace('/\byy?\b/', 'yyyy', $pattern) .
-            (is_string($timeType) ? ' ' . $timeType : '')
+            (is_string($timetype) ? ' ' . $timetype : '')
         );
     }
 
     /**
      * Format the date and/or time value as a string based on the current locale
      *
-     * @param DateTime|int|string|null $value
-     * @param string|null $dateFormat  null, 'none', 'short', 'medium', 'long', 'full' or pattern
-     * @param string|null $timeFormat  null, 'none', 'short', 'medium', 'long', 'full' or pattern
-     * @param string $calendar    'gregorian' or 'traditional'
-     * @return string|null
+     * @param \DateTime|int|string $value
+     * @param string               $dateFormat  null, 'short', 'medium', 'long', 'full' or pattern
+     * @param string               $timeFormat  null, 'short', 'medium', 'long', 'full' or pattern
+     * @param string               $calendar    'gregorian' or 'traditional'
+     * @return string
      */
-    protected function formatLocal(
-        $value,
-        ?string $dateFormat,
-        ?string $timeFormat,
-        string $calendar = 'gregorian'
-    ): ?string {
+    protected function formatLocal($value, $dateFormat, $timeFormat, $calendar = 'gregorian')
+    {
         if (!isset($value)) {
             return null;
         }
@@ -204,42 +202,42 @@ class DateExtension extends AbstractExtension
     /**
      * Format the date value as a string based on the current locale
      *
-     * @param DateTime|int|string|null $date
-     * @param string|null $format    null, 'short', 'medium', 'long', 'full' or pattern
-     * @param string $calendar  'gregorian' or 'traditional'
-     * @return string|null
+     * @param \DateTime|int|string $date
+     * @param string               $format    null, 'short', 'medium', 'long', 'full' or pattern
+     * @param string               $calendar  'gregorian' or 'traditional'
+     * @return string
      */
-    public function localDate($date, ?string $format = null, string $calendar = 'gregorian'): ?string
+    public function localDate($date, $format = null, $calendar = 'gregorian')
     {
-        return $this->formatLocal($date, $format, 'none', $calendar);
+        return $this->formatLocal($date, $format, false, $calendar);
     }
 
     /**
      * Format the time value as a string based on the current locale
      *
-     * @param DateTime|int|string|null $date
-     * @param string $format    'short', 'medium', 'long', 'full' or pattern
-     * @param string $calendar  'gregorian' or 'traditional'
-     * @return string|null
+     * @param \DateTime|int|string $date
+     * @param string               $format    'short', 'medium', 'long', 'full' or pattern
+     * @param string               $calendar  'gregorian' or 'traditional'
+     * @return string
      */
-    public function localTime($date, string $format = 'short', string $calendar = 'gregorian'): ?string
+    public function localTime($date, $format = 'short', $calendar = 'gregorian')
     {
-        return $this->formatLocal($date, 'none', $format, $calendar);
+        return $this->formatLocal($date, false, $format, $calendar);
     }
 
     /**
      * Format the date/time value as a string based on the current locale
      *
-     * @param DateTime|int|string|null $date
-     * @param string|array|\stdClass|null $format    date format, pattern or ['date'=>format, 'time'=>format)
-     * @param string $calendar  'gregorian' or 'traditional'
+     * @param \DateTime|int|string $date
+     * @param string               $format    date format, pattern or ['date'=>format, 'time'=>format)
+     * @param string               $calendar  'gregorian' or 'traditional'
      * @return string
      */
-    public function localDateTime($date, $format = null, string $calendar = 'gregorian'): ?string
+    public function localDateTime($date, $format = null, $calendar = 'gregorian')
     {
         if (is_array($format) || $format instanceof \stdClass || !isset($format)) {
-            $formatDate = $format['date'] ?? null;
-            $formatTime = $format['time'] ?? 'short';
+            $formatDate = isset($format['date']) ? $format['date'] : null;
+            $formatTime = isset($format['time']) ? $format['time'] : 'short';
         } else {
             $formatDate = $format;
             $formatTime = false;
@@ -253,10 +251,9 @@ class DateExtension extends AbstractExtension
      * Split duration into seconds, minutes, hours, days, weeks and years.
      *
      * @param int $seconds
-     * @param int $max
      * @return array
      */
-    protected function splitDuration(int $seconds, int $max): array
+    protected function splitDuration($seconds, $max)
     {
         if ($max < 1 || $seconds < 60) {
             return [$seconds];
@@ -297,16 +294,13 @@ class DateExtension extends AbstractExtension
      *
      * Use null to skip a unit.
      *
-     * @param int|null $value     Time in seconds
-     * @param array $units     Time units (seconds, minutes, hours, days, weeks, years)
+     * @param int    $value     Time in seconds
+     * @param array  $units     Time units (seconds, minutes, hours, days, weeks, years)
      * @param string $separator
      * @return string
      */
-    public function duration(
-        ?int $value,
-        array $units = ['s', 'm', 'h', 'd', 'w', 'y'],
-        string $separator = ' '
-    ): ?string {
+    public function duration($value, $units = ['s', 'm', 'h', 'd', 'w', 'y'], $separator = ' ')
+    {
         if (!isset($value)) {
             return null;
         }
@@ -327,10 +321,10 @@ class DateExtension extends AbstractExtension
     /**
      * Get the age (in years) based on a date.
      *
-     * @param DateTime|string|null $value
-     * @return int|null
+     * @param \DateTime|string $value
+     * @return int
      */
-    public function age($value): ?int
+    public function age($value)
     {
         if (!isset($value)) {
             return null;
@@ -338,6 +332,6 @@ class DateExtension extends AbstractExtension
 
         $date = $this->valueToDateTime($value);
 
-        return (int)$date->diff(new DateTime())->format('%y');
+        return $date->diff(new \DateTime())->format('%y');
     }
 }

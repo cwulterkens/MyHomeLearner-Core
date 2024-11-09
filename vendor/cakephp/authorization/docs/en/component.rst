@@ -74,8 +74,6 @@ authorization for anonymous users. Both the ``can()`` and ``authorize()`` suppor
 anonymous users. Your policies can expect to get ``null`` for the 'user' parameter
 when the user is not logged in.
 
-.. _applying-policy-scopes:
-
 Applying Policy Scopes
 ======================
 

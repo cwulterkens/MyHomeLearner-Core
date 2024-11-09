@@ -1,9 +1,9 @@
 <?php
 
-namespace Jasny\Twig\Tests;
+namespace Jasny\Twig;
 
 use Jasny\Twig\ArrayExtension;
-use Jasny\Twig\Tests\Support\TestHelper;
+use Jasny\Twig\TestHelper;
 use PHPUnit\Framework\TestCase;
 
 /**

@@ -54,10 +54,6 @@ class SubjectsController extends AppController
     public function add()
     {
         $subject = $this->Subjects->newEmptyEntity();
-        
-        // Perform the authorization check before processing the request
-        $this->Authorization->authorize($subject);
-
         if ($this->request->is('post')) {
             $subject = $this->Subjects->patchEntity($subject, $this->request->getData());
             if ($this->Subjects->save($subject)) {
@@ -67,6 +63,7 @@ class SubjectsController extends AppController
             }
             $this->Flash->error(__('The subject could not be saved. Please, try again.'));
         }
+        $this->Authorization->authorize($subject);
 
         $this->set(compact('subject'));
     }

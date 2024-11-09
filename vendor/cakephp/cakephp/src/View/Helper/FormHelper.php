@@ -1396,13 +1396,9 @@ class FormHelper extends Helper
             $options['templateVars']['customValidityMessage'] = $message;
 
             if ($this->getConfig('autoSetCustomValidity')) {
-                $condition = 'this.value';
-                if ($options['type'] === 'checkbox') {
-                    $condition = 'this.checked';
-                }
                 $options['data-validity-message'] = $message;
                 $options['oninvalid'] = "this.setCustomValidity(''); "
-                    . "if (!{$condition}) this.setCustomValidity(this.dataset.validityMessage)";
+                    . 'if (!this.value) this.setCustomValidity(this.dataset.validityMessage)';
                 $options['oninput'] = "this.setCustomValidity('')";
             }
         }

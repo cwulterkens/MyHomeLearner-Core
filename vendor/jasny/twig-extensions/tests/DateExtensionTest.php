@@ -1,9 +1,9 @@
 <?php
 
-namespace Jasny\Twig\Tests;
+namespace Jasny\Twig;
 
 use Jasny\Twig\DateExtension;
-use Jasny\Twig\Tests\Support\TestHelper;
+use Jasny\Twig\TestHelper;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,21 +16,21 @@ class DateExtensionTest extends TestCase
     public function setUp(): void
     {
         date_default_timezone_set('UTC');
-        \Locale::setDefault("en_US");
+        \Locale::setDefault("en_EN");
     }
 
-    protected function getExtension(): DateExtension
+    protected function getExtension()
     {
         return new DateExtension();
     }
 
 
-    public function localDateTimeProvider(): array
+    public function localDateTimeProvider()
     {
         return [
             ['9/20/2015', '20-09-2015', "{{ '20-09-2015'|localdate }}"],
             ['September 20, 2015', '20 september 2015', "{{ '20-09-2015'|localdate('long') }}"],
-            ['9/20/15', "20-09-2015", "{{ '20-09-2015'|localdate('short') }}"],
+            ['9/20/15', "20-09-15", "{{ '20-09-2015'|localdate('short') }}"],
             ['Sunday, September 20, 2015', "zondag 20 september 2015", "{{ '20-09-2015'|localdate('full') }}"],
             ['20|09|2015', "20|09|2015", "{{ '20-09-2015'|localdate('dd|MM|yyyy') }}"],
 
@@ -51,9 +51,12 @@ class DateExtensionTest extends TestCase
      * @param string $nl
      * @param string $template
      */
-    public function testLocalDateTimeEn($en, $nl, $template): void
+    public function testLocalDateTimeEn($en, $nl, $template)
     {
-        \Locale::setDefault("en_US");
+        if (!\Locale::setDefault("en_EN")) {
+            return $this->markAsSkipped("Unable to set locale to 'en_EN'");
+        }
+
         $this->assertRender($en, $template);
     }
 
@@ -64,14 +67,18 @@ class DateExtensionTest extends TestCase
      * @param string $nl
      * @param string $template
      */
-    public function testLocalDateTimeNL($en, $nl, $template): void
+    public function testLocalDateTimeNL($en, $nl, $template)
     {
-        \Locale::setDefault("nl_NL");
+        if (!\Locale::setDefault("nl_NL")) {
+            return $this->markAsSkipped("Unable to set locale to 'nl_NL'");
+        }
+
         $this->assertRender($nl, $template);
+
     }
 
 
-    public function durationProvider(): array
+    public function durationProvider()
     {
         return [
             ['31s', "{{ 31|duration }}"],
@@ -104,7 +111,7 @@ class DateExtensionTest extends TestCase
     }
 
 
-    public function ageProvider(): array
+    public function ageProvider()
     {
         $time = time() - (((32 * 365) + 100) * 24 * 3600);
         $date = date('Y-m-d', $time);
@@ -127,7 +134,7 @@ class DateExtensionTest extends TestCase
     }
 
 
-    public static function filterProvider(): array
+    public function filterProvider()
     {
         return [
             ['localdate'],
@@ -140,10 +147,11 @@ class DateExtensionTest extends TestCase
 
     /**
      * @dataProvider filterProvider
+     *
+     * @param string $filter
      */
-    public function testWithNull(string $filter, $arg = null)
+    public function testWithNull($filter)
     {
-        $call = $filter . ($arg ? '(' . json_encode($arg) . ')' : '');
-        $this->assertRender('-', '{{ null|' . $call  . '|default("-") }}');
+        $this->assertRender('-', '{{ null|' . $filter . '("//")|default("-") }}');
     }
 }

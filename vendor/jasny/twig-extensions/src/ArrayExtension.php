@@ -12,8 +12,10 @@ class ArrayExtension extends AbstractExtension
 {
     /**
      * Return extension name
+     *
+     * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return 'jasny/array';
     }
@@ -36,16 +38,22 @@ class ArrayExtension extends AbstractExtension
 
     /**
      * Calculate the sum of values in an array
+     *
+     * @param array $array
+     * @return int
      */
-    public function sum(?array $array): ?int
+    public function sum($array)
     {
         return isset($array) ? array_sum((array)$array) : null;
     }
 
     /**
      * Calculate the product of values in an array
+     *
+     * @param array $array
+     * @return int
      */
-    public function product(?array $array): ?int
+    public function product($array)
     {
         return isset($array) ? array_product((array)$array) : null;
     }
@@ -53,10 +61,10 @@ class ArrayExtension extends AbstractExtension
     /**
      * Return all the values of an array or object
      *
-     * @param array|object|null $array
-     * @return array|null
+     * @param array|object $array
+     * @return array
      */
-    public function values($array): ?array
+    public function values($array)
     {
         return isset($array) ? array_values((array)$array) : null;
     }
@@ -64,10 +72,10 @@ class ArrayExtension extends AbstractExtension
     /**
      * Cast value to an array
      *
-     * @param mixed $value
+     * @param object|mixed $value
      * @return array
      */
-    public function asArray($value): array
+    public function asArray($value)
     {
         return is_object($value) ? get_object_vars($value) : (array)$value;
     }
@@ -76,9 +84,9 @@ class ArrayExtension extends AbstractExtension
      * Cast an array to an HTML attribute string
      *
      * @param mixed $array
-     * @return string|null
+     * @return string
      */
-    public function htmlAttributes($array): ?string
+    public function htmlAttributes($array)
     {
         if (!isset($array)) {
             return null;

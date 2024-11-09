@@ -21,11 +21,14 @@
  * @var array $tables
  * @var \DebugKit\Database\Log\DebugLog[] $loggers
  */
-
-use Doctrine\SqlFormatter\HtmlHighlighter;
-use Doctrine\SqlFormatter\SqlFormatter;
-
 $noOutput = true;
+
+// Configure sqlformatter colours.
+SqlFormatter::$quote_attributes = 'style="color: #004d40;"';
+SqlFormatter::$backtick_quote_attributes = 'style="color: #26a69a;"';
+SqlFormatter::$number_attributes = 'style="color: #ec407a;"';
+SqlFormatter::$word_attributes = 'style="color: #9c27b0;"';
+SqlFormatter::$pre_attributes = 'style="color: #222; background-color: transparent;"';
 ?>
 
 <div class="c-sql-log-panel">
@@ -74,20 +77,7 @@ $noOutput = true;
                     <tbody>
                         <?php foreach ($queries as $query) : ?>
                         <tr>
-                            <td>
-                                <?=
-                                    (new SqlFormatter(
-                                        new HtmlHighlighter([
-                                            HtmlHighlighter::HIGHLIGHT_QUOTE => 'style="color: #004d40;"',
-                                            HtmlHighlighter::HIGHLIGHT_BACKTICK_QUOTE => 'style="color: #26a69a;"',
-                                            HtmlHighlighter::HIGHLIGHT_NUMBER => 'style="color: #ec407a;"',
-                                            HtmlHighlighter::HIGHLIGHT_WORD => 'style="color: #9c27b0;"',
-                                            HtmlHighlighter::HIGHLIGHT_PRE => 'style="color: #222; background-color: transparent;"',
-                                        ])
-                                    ))
-                                    ->format($query['query'])
-                                ?>
-                            </td>
+                            <td><?= SqlFormatter::format($query['query']) ?></td>
                             <td><?= h($query['rows']) ?></td>
                             <td><?= h($query['took']) ?></td>
                         </tr>

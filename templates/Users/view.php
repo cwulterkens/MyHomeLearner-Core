@@ -113,7 +113,7 @@
                         "method" => "post",
                         "class" => "require-validation",
                         "data-cc-on-file" => "false",
-                        "data-stripe-publishable-key" => \Cake\Core\Configure::read('Stripe.public'),
+                        "data-stripe-publishable-key" => STRIPE_KEY,
                         "id" => "payment-form"
                     ]) ?>
                                 <!-- Monthly Subscription Box -->
@@ -274,7 +274,7 @@
                         "method" => "post",
                         "class" => "require-validation",
                         "data-cc-on-file" => "false",
-                        "data-stripe-publishable-key" => \Cake\Core\Configure::read('Stripe.public'),
+                        "data-stripe-publishable-key" => STRIPE_KEY,
                         "id" => "payment-form"
                     ]) ?>
 

@@ -1,9 +1,8 @@
 <?php
 
-namespace Jasny\Twig\Tests\Support;
+namespace Jasny\Twig;
 
 use Twig\Environment;
-use Twig\Extension\AbstractExtension;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -14,7 +13,7 @@ trait TestHelper
     /**
      * Get the tested extension
      *
-     * @return AbstractExtension;
+     * @return \Twig\Extension\AbstractExtension;
      */
     abstract protected function getExtension();
 
@@ -22,7 +21,7 @@ trait TestHelper
      * Build the Twig environment for the template
      *
      * @param string $template
-     * @return Environment
+     * @return \Twig\Environment
      */
     protected function buildEnv($template)
     {

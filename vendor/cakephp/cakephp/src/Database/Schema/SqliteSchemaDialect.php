@@ -118,7 +118,7 @@ class SqliteSchemaDialect extends SchemaDialect
             return ['type' => TableSchema::TYPE_BOOLEAN, 'length' => null];
         }
 
-        if (($col === 'char' && $length === 36) || $col === 'uuid') {
+        if ($col === 'char' && $length === 36) {
             return ['type' => TableSchema::TYPE_UUID, 'length' => null];
         }
         if ($col === 'char') {

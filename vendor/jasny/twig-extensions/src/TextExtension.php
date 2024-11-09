@@ -36,8 +36,11 @@ class TextExtension extends AbstractExtension
 
     /**
      * Add paragraph and line breaks to text.
+     *
+     * @param string $value
+     * @return string
      */
-    public function paragraph(?string $value): ?string
+    public function paragraph($value)
     {
         if (!isset($value)) {
             return null;
@@ -50,11 +53,11 @@ class TextExtension extends AbstractExtension
     /**
      * Get a single line
      *
-     * @param string|null $value
+     * @param string $value
      * @param int    $line   Line number (starts at 1)
-     * @return string|null
+     * @return string
      */
-    public function line(?string $value, int $line = 1): ?string
+    public function line($value, $line = 1)
     {
         if (!isset($value)) {
             return null;
@@ -62,13 +65,18 @@ class TextExtension extends AbstractExtension
 
         $lines = explode("\n", $value);
 
-        return $lines[$line - 1] ?? null;
+        return isset($lines[$line - 1]) ? $lines[$line - 1] : null;
     }
 
     /**
-     * Cut of text on a page break.
+     * Cut of text on a pagebreak.
+     *
+     * @param string $value
+     * @param string $replace
+     * @param string $break
+     * @return string
      */
-    public function less(?string $value, string $replace = '...', string $break = '<!-- pagebreak -->'): ?string
+    public function less($value, $replace = '...', $break = '<!-- pagebreak -->')
     {
         if (!isset($value)) {
             return null;
@@ -79,9 +87,14 @@ class TextExtension extends AbstractExtension
     }
 
     /**
-     * Cut of text if it's too long.
+     * Cut of text if it's to long.
+     *
+     * @param string $value
+     * @param int    $length
+     * @param string $replace
+     * @return string
      */
-    public function truncate(?string $value, int $length, string $replace = '...'): ?string
+    public function truncate($value, $length, $replace = '...')
     {
         if (!isset($value)) {
             return null;
@@ -100,7 +113,7 @@ class TextExtension extends AbstractExtension
      * @param string $mode
      * @return string
      */
-    protected function linkifyHttp(string $protocol, string $text, array &$links, string $attr, string $mode): string
+    protected function linkifyHttp($protocol, $text, array &$links, $attr, $mode)
     {
         $regexp = $mode != 'all'
             ? '~(?:(https?)://([^\s<>]+)|(?<!\w@)\b(www\.[^\s<>]+?\.[^\s<>]+))(?<![\.,:;\?!\'"\|])~i'
@@ -125,9 +138,9 @@ class TextExtension extends AbstractExtension
      * @param string $attr
      * @return string
      */
-    protected function linkifyMail(string $text, array &$links, string $attr): string
+    protected function linkifyMail($text, array &$links, $attr)
     {
-        $regexp = '~([^\s<>]+?@[^\s<>]+?\.[^\s<>]+)(?<![.,:;?!\'"|])~';
+        $regexp = '~([^\s<>]+?@[^\s<>]+?\.[^\s<>]+)(?<![\.,:;\?!\'"\|])~';
 
         return preg_replace_callback($regexp, function ($match) use (&$links, $attr) {
             return '<' . array_push($links, '<a' . $attr . ' href="mailto:' . $match[1] . '">' . $match[1] . '</a>')
@@ -146,7 +159,7 @@ class TextExtension extends AbstractExtension
      * @param string $mode
      * @return string
      */
-    protected function linkifyOther(string $protocol, string $text, array &$links, string $attr, string $mode): string
+    protected function linkifyOther($protocol, $text, array &$links, $attr, $mode)
     {
         if (strpos($protocol, ':') === false) {
             $protocol .= in_array($protocol, ['ftp', 'tftp', 'ssh', 'scp']) ? '://' : ':';
@@ -165,18 +178,14 @@ class TextExtension extends AbstractExtension
     /**
      * Turn all URLs in clickable links.
      *
-     * @param string|null $value
-     * @param array|string $protocols 'http'/'https', 'mail' and also 'ftp', 'scp', 'tel', etc
+     * @param string $value
+     * @param array  $protocols   'http'/'https', 'mail' and also 'ftp', 'scp', 'tel', etc
      * @param array  $attributes  HTML attributes for the link
      * @param string $mode        normal or all
      * @return string
      */
-    public function linkify(
-        ?string $value,
-        $protocols = ['http', 'mail'],
-        array $attributes = [],
-        string $mode = 'normal'
-    ): ?string {
+    public function linkify($value, $protocols = ['http', 'mail'], array $attributes = [], $mode = 'normal')
+    {
         if (!isset($value)) {
             return null;
         }

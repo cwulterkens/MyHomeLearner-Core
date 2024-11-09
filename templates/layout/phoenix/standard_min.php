@@ -279,6 +279,21 @@
 <!-- Template Main JS File -->
 <?= $this->Html->script(['/phoenix/js/main']) ?>
 
+<!-- SUPPORT CHAT -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://support.wulterkens.tech/assets/chat/chat.min.js"></script>
+<script>
+$(function() {
+  new ZammadChat({
+    title: '<strong>Chat With Us!</strong>',
+    background: '#4da1e5',
+    fontSize: '12px',
+    flat: true,
+    chatId: 1
+  });
+});
+</script>
+
 <script>
 (function() {
   // Function to handle theme switch

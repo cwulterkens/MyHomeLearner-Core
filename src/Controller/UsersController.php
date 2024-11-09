@@ -16,9 +16,9 @@ use Cake\ORM\TableRegistry;
 use App\Model\Table\AuditsTable;
 use App\Model\Table\LearnersTable;
 use Cake\ORM\Query;
-use Cake\Core\Configure;
 use Cake\Validation\Validator;
 use Cake\Log\Log;
+use Cake\Core\Configure;
 
 /**
  * Users Controller
@@ -52,7 +52,7 @@ class UsersController extends AppController
 
     protected function configureStripe(): void
     {
-        \Stripe\Stripe::setApiKey(Configure::read('Stripe.secret'));
+        \Stripe\Stripe::setApiKey(STRIPE_SECRET);
     }
     public function index() {
         $user = $this->request->getAttribute('identity');

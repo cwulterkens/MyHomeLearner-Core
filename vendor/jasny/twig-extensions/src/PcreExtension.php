@@ -25,8 +25,10 @@ class PcreExtension extends AbstractExtension
 
     /**
      * Return extension name
+     *
+     * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return 'jasny/pcre';
     }
@@ -34,7 +36,7 @@ class PcreExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFilters(): array
+    public function getFilters()
     {
         return [
             new TwigFilter('preg_quote', [$this, 'quote']),
@@ -52,26 +54,28 @@ class PcreExtension extends AbstractExtension
     /**
      * Check that the regex doesn't use the eval modifier
      *
-     * @throws RuntimeError
+     * @param string $pattern
+     * @throws \LogicException
      */
-    protected function assertNoEval(string ...$pattern): void
+    protected function assertNoEval($pattern)
     {
-        $patterns = $pattern;
+        $pos = strrpos($pattern, $pattern[0]);
+        $modifiers = substr($pattern, $pos + 1);
 
-        foreach ($patterns as $pattern) {
-            $pos       = strrpos($pattern, $pattern[0]);
-            $modifiers = substr($pattern, $pos + 1);
-
-            if (strpos($modifiers, 'e') !== false) {
-                throw new RuntimeError("Using the eval modifier for regular expressions is not allowed");
-            }
+        if (strpos($modifiers, 'e') !== false) {
+            throw new RuntimeError("Using the eval modifier for regular expressions is not allowed");
         }
     }
 
+
     /**
      * Quote regular expression characters.
+     *
+     * @param string $value
+     * @param string $delimiter
+     * @return string
      */
-    public function quote(?string $value, string $delimiter = '/'): ?string
+    public function quote($value, $delimiter = '/')
     {
         if (!isset($value)) {
             return null;
@@ -81,72 +85,63 @@ class PcreExtension extends AbstractExtension
     }
 
     /**
-     * Wrapper for preg_match that throws an exception on error.
-     *
-     * @throws RuntimeError
-     */
-    private function pregMatch(string $pattern, string $value, &$matches = []): int
-    {
-        $ret = preg_match($pattern, $value, $matches);
-
-        if ($ret === false) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret;
-    }
-
-    /**
      * Perform a regular expression match.
+     *
+     * @param string $value
+     * @param string $pattern
+     * @return boolean
      */
-    public function match(?string $value, string $pattern): bool
+    public function match($value, $pattern)
     {
         if (!isset($value)) {
-            return false;
+            return null;
         }
 
-        return $this->pregMatch($pattern, $value) > 0;
+        return preg_match($pattern, $value);
     }
 
     /**
      * Perform a regular expression match and return a matched group.
+     *
+     * @param string $value
+     * @param string $pattern
+     * @return string
      */
-    public function get(?string $value, string $pattern, int $group = 0): ?string
+    public function get($value, $pattern, $group = 0)
     {
         if (!isset($value)) {
             return null;
         }
 
-        return $this->pregMatch($pattern, $value, $matches) > 0 && isset($matches[$group]) ? $matches[$group] : null;
+        return preg_match($pattern, $value, $matches) && isset($matches[$group]) ? $matches[$group] : null;
     }
 
     /**
      * Perform a regular expression match and return the group for all matches.
+     *
+     * @param string $value
+     * @param string $pattern
+     * @return array
      */
-    public function getAll(?string $value, string $pattern, int $group = 0): ?array
+    public function getAll($value, $pattern, $group = 0)
     {
         if (!isset($value)) {
             return null;
         }
 
-        $ret = preg_match_all($pattern, $value, $matches, PREG_PATTERN_ORDER);
-
-        if ($ret === false) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret > 0 && isset($matches[$group]) ? $matches[$group] : [];
+        return preg_match_all($pattern, $value, $matches, PREG_PATTERN_ORDER) && isset($matches[$group])
+            ? $matches[$group] : [];
     }
 
     /**
      * Perform a regular expression match and return an array of entries that match the pattern
      *
-     * @param array|null $values
+     * @param array  $values
      * @param string $pattern
      * @param string $flags    Optional 'invert' to return entries that do not match the given pattern.
      * @return array
      */
-    public function grep(?array $values, string $pattern, string $flags = ''): ?array
+    public function grep($values, $pattern, $flags = '')
     {
         if (!isset($values)) {
             return null;
@@ -156,84 +151,62 @@ class PcreExtension extends AbstractExtension
             $flags = $flags === 'invert' ? PREG_GREP_INVERT : 0;
         }
 
-        $ret = preg_grep($pattern, $values, $flags);
-
-        if ($ret === false) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret;
+        return preg_grep($pattern, $values, $flags);
     }
 
     /**
      * Perform a regular expression search and replace.
      *
-     * @param string|array|null $value
-     * @param string|array $pattern
-     * @param string|array $replacement
-     * @param int $limit
-     * @return string|array|null
-     * @throws RuntimeError
+     * @param string $value
+     * @param string $pattern
+     * @param string $replacement
+     * @param int    $limit
+     * @return string
      */
-    public function replace($value, $pattern, $replacement = '', int $limit = -1)
+    public function replace($value, $pattern, $replacement = '', $limit = -1)
     {
-        $this->assertNoEval(...(array)$pattern);
+        $this->assertNoEval($pattern);
 
         if (!isset($value)) {
             return null;
         }
 
-        $ret = preg_replace($pattern, $replacement, $value, $limit);
-
-        if ($ret === null) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret;
+        return preg_replace($pattern, $replacement, $value, $limit);
     }
 
     /**
      * Perform a regular expression search and replace, returning only matched subjects.
      *
-     * @param string|array|null $value
-     * @param string|array $pattern
-     * @param string|array $replacement
-     * @param int $limit
-     * @return string|array|null
-     * @throws RuntimeError
+     * @param string $value
+     * @param string $pattern
+     * @param string $replacement
+     * @param int    $limit
+     * @return string
      */
-    public function filter($value, $pattern, $replacement = '', int $limit = -1)
+    public function filter($value, $pattern, $replacement = '', $limit = -1)
     {
-        $this->assertNoEval(...(array)$pattern);
+        $this->assertNoEval($pattern);
 
         if (!isset($value)) {
             return null;
         }
 
-        $ret = preg_filter($pattern, $replacement, $value, $limit);
-
-        if ($ret === null) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret;
+        return preg_filter($pattern, $replacement, $value, $limit);
     }
 
     /**
      * Split text into an array using a regular expression.
+     *
+     * @param string $value
+     * @param string $pattern
+     * @return array
      */
-    public function split(?string $value, string $pattern): array
+    public function split($value, $pattern)
     {
         if (!isset($value)) {
-            return [];
+            return null;
         }
 
-        $ret = preg_split($pattern, $value);
-
-        if ($ret === false) {
-            throw new RuntimeError("Error in regular expression: $pattern");
-        }
-
-        return $ret;
+        return preg_split($pattern, $value);
     }
 }
