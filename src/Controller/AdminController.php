@@ -302,16 +302,19 @@ public function usage() {
     public function learners()
     {
         // Load all necessary models
-        $modelsToLoad = ['Learners', 'JournalLearners', 'ActivitiesLearners', 'HonorsLearners', 'FilesLearners', 'Courses', 'Jobs'];
+        $modelsToLoad = ['Learners', 'JournalLearners', 'ActivitiesLearners', 'HonorsLearners', 'FilesLearners', 'Courses', 'Jobs', 'Users'];
         array_map([$this, 'loadModel'], $modelsToLoad);
 
         $this->paginate = [
             'finder' => [
                 'withUser' => []
-            ]
+            ],
+            'contain' => ['Users'], // Include Users association here
         ];
 
         $currentUserId = $this->Authentication->getIdentity()->id;
+
+        // Paginate learners with associated Users
         $learners = $this->paginate($this->Learners->find());
 
         // Define the countable models
@@ -324,7 +327,7 @@ public function usage() {
             'jobCount' => 'Jobs',
         ];
 
-        // Calculate the age for each learner and counts
+        // Calculate counts for each learner
         foreach ($learners as $learner) {
             $learner = array_reduce(array_keys($countableModels), function ($learner, $countName) use ($countableModels) {
                 $modelName = $countableModels[$countName];
@@ -335,7 +338,6 @@ public function usage() {
 
         $this->set(compact('learners'));
     }
-
 
     public function courses()
     {

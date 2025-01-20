@@ -402,7 +402,7 @@ class UsersController extends AppController
                 ],
                 'complexity' => [
                     'rule' => function ($value, $context) {
-                        return preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+])/', $value);
+                        return preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+]).{8,}$/', $value);
                     },
                     'message' => 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'
                 ]

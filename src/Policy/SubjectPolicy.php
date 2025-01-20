@@ -31,6 +31,7 @@ class subjectPolicy
      */
     public function canEdit(IdentityInterface $user, subject $subject)
     {
+        return $user->admin === 1;
     }
 
     /**
@@ -42,6 +43,7 @@ class subjectPolicy
      */
     public function canDelete(IdentityInterface $user, subject $subject)
     {
+        return $user->admin === 1;
     }
 
     /**
@@ -53,5 +55,11 @@ class subjectPolicy
      */
     public function canView(IdentityInterface $user, subject $subject)
     {
+        return $user->admin === 1;
+    }
+
+    public function canIndex(IdentityInterface $user, subject $subject)
+    {
+        return $user->admin === 1;
     }
 }

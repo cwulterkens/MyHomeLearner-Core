@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Utility\AuditLogger;
 use Cake\I18n\FrozenTime;
-use Cake\Chronos\Chronos;
-use Cake\Http\Exception\NotFoundException;
-use Cake\Validation\Validator;
 use Cake\Filesystem\File;
+use Cake\Log\Log;
 
 /**
  * Learners Controller
@@ -17,14 +16,10 @@ use Cake\Filesystem\File;
  */
 class LearnersController extends AppController
 {
-    public $Audits = null;
-    public $Notifications = null;
-
     public function initialize(): void
     {
         parent::initialize();
 
-        // Loading models explicitly
         $this->loadModel('Audits');
         $this->loadModel('Notifications');
     }
@@ -33,31 +28,26 @@ class LearnersController extends AppController
     {
         parent::beforeFilter($event);
 
-        $this->Authorization->skipAuthorization(['index']);
-    }
-    public function index()
-    {
-        // Check if user is authenticated
         if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
+            $this->Flash->error(__('You must be logged in to access this page.'));
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }
 
+        $this->Authorization->skipAuthorization(['index']);
+    }
+
+    public function index()
+    {
         $currentUserId = $this->Authentication->getIdentity()->id;
 
-        // Specify the custom finder in your paginate settings
         $this->paginate = [
             'finder' => [
                 'forCurrentUser' => ['currentUserId' => $currentUserId]
-            ]
+            ],
+            'limit' => 20,
         ];
 
-        // Use paginate to fetch learners associated with the currently authenticated user
-        $learners = $this->paginate($this->Learners);
-
-        // Calculate the age for each learner using map
-        $learners = $learners->map(function ($learner) {
-            // Convert both dates to FrozenTime before comparison
+        $learners = $this->paginate($this->Learners)->map(function ($learner) {
             $dob = new FrozenTime($learner->date_of_birth);
             $learner->age = $dob->diffInYears(FrozenTime::now());
             return $learner;
@@ -65,59 +55,34 @@ class LearnersController extends AppController
 
         $this->set(compact('learners'));
     }
+
     public function view($id = null)
     {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
-
-        $currentUser = $this->Authentication->getIdentity()->id;
-
-        // Fetch the learner with related data
         $learner = $this->Learners->get($id, [
+            'fields' => ['id', 'first_name', 'last_name', 'graduation_date'],
             'contain' => [
-                'Users',
-                'Files' => ['FileTypes'],
-                'Journal',
-                'Courses' => [
-                    'Subjects' => ['sort' => ['Subjects.name' => 'ASC']],
+                'Users' => ['fields' => ['id', 'first_name', 'last_name']],
+                'Files' => ['fields' => ['id', 'name', 'file_type_id']],
+                'Journal', 'Courses' => [
+                    'Subjects' => ['fields' => ['id', 'name']],
                     'Grades',
-                    'SchoolYears' => ['sort' => ['SchoolYears.name' => 'ASC']]
-                ],
-                'Honors',
-                'Activities',
-                'Jobs'
+                    'SchoolYears' => ['fields' => ['id', 'name']]
+                ], 'Honors', 'Activities', 'Jobs'
             ],
         ]);
 
-        // Check if learner belongs to the current user
-        if ($learner->user_id !== $currentUser) {
-            $this->Flash->error(__('Access denied.'));
-            return $this->redirect(['action' => 'index']);
-        }
-
-        // Authorize the action
         $this->Authorization->authorize($learner);
 
-        // Fetch the matching audit records for the learner
         $audits = $this->Audits->find()
             ->where(['record_id' => $id])
             ->order(['created' => 'DESC'])
             ->all();
 
-        // Set data for the view
         $this->set(compact('learner', 'audits'));
     }
-    public function add($id = null)
-    {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
 
+    public function add()
+    {
         $currentUser = $this->Authentication->getIdentity()->id;
         $learner = $this->Learners->newEmptyEntity();
 
@@ -126,183 +91,231 @@ class LearnersController extends AppController
             $learner = $this->Learners->patchEntity($learner, $this->request->getData());
 
             if ($this->Learners->save($learner)) {
+                AuditLogger::log([
+                    'id' => \Cake\Utility\Text::uuid(),
+                    'message' => 'Added learner',
+                    'user_id' => $currentUser,
+                    'record_id' => $learner->id,
+                    'component_name' => 'LearnersController',
+                    'action_name' => 'add',
+                    'ip' => $this->request->clientIp(),
+                ]);
+
                 $this->Flash->success(__('The learner has been saved.'));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'view', $learner->id]);
             } else {
                 $this->Flash->error(__('The learner could not be saved. Please, try again.'));
             }
         }
 
-        // Fetch associated files for the current user
-        $files = $this->Learners->Files->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'name',
-            'order' => ['filename' => 'ASC'],
-            'conditions' => ['user_id' => $currentUser]
-        ])->all();
+        $files = Cache::remember('files_list_' . $currentUser, function () use ($currentUser) {
+            return $this->Learners->Files->find('list', [
+                'keyField' => 'id',
+                'valueField' => 'name',
+                'conditions' => ['user_id' => $currentUser],
+            ])->all();
+        });
 
-        // If the user is an admin (has admin value of 1), fetch all users to allow assignment of learners
+        $users = null;
         if ($this->Authentication->getIdentity()->admin == 1) {
             $users = $this->Learners->Users->find('list', [
                 'keyField' => 'id',
                 'valueField' => function ($learner) {
-                    return $learner->last_name . ', ' . $learner->first_name . ' (' . $learner->id . ')';
+                    return $learner->last_name . ', ' . $learner->first_name;
                 },
                 'order' => ['Users.last_name' => 'ASC']
             ])->all();
         }
 
-        // Authorize the action for the learner
         $this->Authorization->authorize($learner);
 
-        // Set data for the view
         $this->set(compact('learner', 'users', 'files'));
     }
-    public function edit($id = null, $userId = null)
+
+    public function edit($id = null)
     {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
-
         $currentUser = $this->Authentication->getIdentity()->id;
-
         $learner = $this->Learners->get($id, ['contain' => ['Files']]);
+        $this->Authorization->authorize($learner);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
+            $originalData = $learner->toArray();
             $learner = $this->Learners->patchEntity($learner, $this->request->getData());
 
             if ($this->Learners->save($learner)) {
+                $excludedFields = ['modified', 'created'];
+                $changes = [];
+                foreach ($originalData as $field => $originalValue) {
+                    if (in_array($field, $excludedFields, true)) {
+                        continue;
+                    }
+
+                    $newValue = $learner->get($field);
+                    if ($originalValue === $newValue) {
+                        continue;
+                    }
+
+                    $changes[] = sprintf(
+                        '%s: "%s" -> "%s"',
+                        $field,
+                        htmlspecialchars($originalValue ?? '(null)', ENT_QUOTES, 'UTF-8'),
+                        htmlspecialchars($newValue ?? '(null)', ENT_QUOTES, 'UTF-8')
+                    );
+                }
+
+                if (!empty($changes)) {
+                    AuditLogger::log([
+                        'id' => \Cake\Utility\Text::uuid(),
+                        'message' => sprintf('Edited learner. Changes: %s', implode(', ', $changes)),
+                        'user_id' => $currentUser,
+                        'record_id' => $learner->id,
+                        'component_name' => 'LearnersController',
+                        'action_name' => 'edit',
+                        'ip' => $this->request->clientIp(),
+                    ]);
+                }
+
                 $this->Flash->success(__('The learner has been saved.'));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'view', $learner->id]);
             } else {
                 $this->Flash->error(__('The learner could not be saved. Please, try again.'));
             }
         }
 
-        // Fetch associated files for the current user
         $files = $this->Learners->Files->find('list', [
             'keyField' => 'id',
             'valueField' => 'name',
-            'order' => ['filename' => 'ASC'],
-            'conditions' => ['user_id' => $currentUser]
+            'conditions' => ['user_id' => $currentUser],
         ])->all();
 
-        // If the user is an admin (has admin value of 1), fetch all users to allow reassignment of learners
+        $users = null;
         if ($this->Authentication->getIdentity()->admin == 1) {
             $users = $this->Learners->Users->find('list', [
                 'keyField' => 'id',
                 'valueField' => function ($learner) {
-                    return $learner->last_name . ', ' . $learner->first_name . ' (' . $learner->id . ')';
+                    return $learner->last_name . ', ' . $learner->first_name;
                 },
                 'order' => ['Users.last_name' => 'ASC']
             ])->all();
         }
 
-        // Authorize the action for the learner
-        $this->Authorization->authorize($learner);
-
-        // Set data for the view
         $this->set(compact('learner', 'files', 'users'));
     }
+
     public function delete($id = null)
     {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
-
         $this->request->allowMethod(['post', 'delete']);
+
+        $currentUser = $this->Authentication->getIdentity()->id;
+
         try {
             $learner = $this->Learners->get($id);
-
             $this->Authorization->authorize($learner);
 
             if ($this->Learners->delete($learner)) {
+                AuditLogger::log([
+                    'id' => \Cake\Utility\Text::uuid(),
+                    'message' => 'Deleted learner',
+                    'user_id' => $currentUser,
+                    'record_id' => $id,
+                    'component_name' => 'LearnersController',
+                    'action_name' => 'delete',
+                    'ip' => $this->request->clientIp(),
+                ]);
+
                 $this->Flash->success(__('The learner has been deleted.'));
             } else {
                 $this->Flash->error(__('The learner could not be deleted. Please, try again.'));
             }
         } catch (\Exception $e) {
-            $this->Flash->error(__('An error occurred: ') . $e->getMessage());
+            Log::error('Error in delete action: ' . $e->getMessage());
+            $this->Flash->error(__('An error occurred while processing your request. Please try again later.'));
         }
 
         return $this->redirect(['action' => 'index']);
     }
+
     public function pdf($id = null)
     {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+        $learner = $this->Learners->get($id, [
+            'contain' => [
+                'Users', 'Files' => ['FileTypes'], 'Journal', 'Courses' => [
+                    'Subjects', 'Grades', 'SchoolYears'
+                ], 'Honors', 'Activities', 'Jobs'
+            ],
+        ]);
+
+        $this->Authorization->authorize($learner);
+
+        $currentUser = $this->Authentication->getIdentity()->id;
+
+        $totalCredits = 0;
+        $weightedGradePoints = 0;
+
+        foreach ($learner->courses as $course) {
+            $totalCredits += $course->credits;
+            $weightedGradePoints += ($course->credits * $course->grade->value);
         }
+        $gpa = ($totalCredits > 0) ? ($weightedGradePoints / $totalCredits) : 0;
 
-        try {
-            $learner = $this->Learners->get($id, [
-                'contain' => ['Users', 'Files' => ['FileTypes'], 'Journal', 'Courses' => ['Subjects', 'Grades', 'SchoolYears'], 'Honors', 'Activities', 'Jobs'],
-            ]);
+        $name = ($learner->first_name . $learner->last_name);
+        $time = FrozenTime::now()->i18nFormat('yyyyMMddHHmmss');
 
-            $this->Authorization->authorize($learner);
+        $this->viewBuilder()->enableAutoLayout(false);
+        $this->viewBuilder()->setClassName('CakePdf.Pdf');
+        $this->viewBuilder()->setOption(
+            'pdfConfig',
+            [
+                'orientation' => 'portrait',
+                'download' => true,
+                'filename' => 'Transcript_' . $name . '_' . $time . '.pdf'
+            ]
+        );
 
-            $totalCredits = 0;
-            $weightedGradePoints = 0;
+        $this->viewBuilder()->setTemplatePath('Learners');
+        $this->viewBuilder()->setTemplate('pdf');
+        $pdf = $this->viewBuilder()->build()->render();
 
-            foreach ($learner->courses as $course) {
-                $totalCredits += $course->credits;
-                $weightedGradePoints += ($course->credits * $course->grade->value);
-            }
-            $gpa = ($totalCredits > 0) ? ($weightedGradePoints / $totalCredits) : 0;
-
-            $name = ($learner->first_name . $learner->last_name);
-            $time = FrozenTime::now()->i18nFormat('yyyyMMddHHmmss');
-
-            $this->viewBuilder()->enableAutoLayout(false);
-            $this->viewBuilder()->setClassName('CakePdf.Pdf');
-            $this->viewBuilder()->setOption(
-                'pdfConfig',
-                [
-                    'orientation' => 'portrait',
-                    'download' => true,
-                    'filename' => 'Transcript_' . $name . '_' . $time . '.pdf'
-                ]
-            );
-
-            $this->viewBuilder()->setTemplatePath('Learners');
-            $this->viewBuilder()->setTemplate('pdf');
-            $pdf = $this->viewBuilder()->build()->render();
-
-            $pdfPath = WWW_ROOT . 'generated' . DS . 'Transcript_' . $name . '_' . $time . '.pdf';
-            $file = new File($pdfPath, true, 0644);
-            if (!$file->write($pdf)) {
-                throw new \Exception("Failed to save PDF");
-            }
-            $file->close();
-
-        } catch (\Exception $e) {
-            $this->Flash->error(__('An error occurred: ') . $e->getMessage());
-            return $this->redirect(['action' => 'index']);
+        $pdfPath = WWW_ROOT . 'generated' . DS . 'Transcript_' . $name . '_' . $time . '.pdf';
+        $file = new File($pdfPath, true, 0644);
+        if (!$file->write($pdf)) {
+            throw new \Exception("Failed to save PDF");
         }
+        $file->close();
+        AuditLogger::log([
+            'id' => \Cake\Utility\Text::uuid(),
+            'message' => 'Transcript Generated',
+            'user_id' => $currentUser,
+            'record_id' => $id,
+            'component_name' => 'LearnersController',
+            'action_name' => 'pdf',
+            'ip' => $this->request->clientIp(),
+        ]);
 
         $this->set(compact('learner', 'gpa', 'pdf'));
     }
-    public function graduate($id) {
-        // Ensure user is authenticated
-        if (!$this->Authentication->getIdentity()) {
-            $this->Flash->error(__('You are not authenticated.'));
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-        }
 
+    public function graduate($id) {
         $learner = $this->Learners->get($id);
 
         $this->Authorization->authorize($learner);
+
+        $currentUser = $this->Authentication->getIdentity()->id;
 
         $learner->graduated = !$learner->graduated;
         $learner->graduated = (int)$learner->graduated; // cast boolean to integer
 
         if ($this->Learners->save($learner)) {
             $this->Flash->success(__('The graduated status has been changed.'));
+            AuditLogger::log([
+                'id' => \Cake\Utility\Text::uuid(),
+                'message' => 'Learner Graduated',
+                'user_id' => $currentUser,
+                'record_id' => $id,
+                'component_name' => 'LearnersController',
+                'action_name' => 'graduate',
+                'ip' => $this->request->clientIp(),
+            ]);
         } else {
             $this->Flash->error(__('The graduated status could not be modified. Please try again.'));
         }

@@ -262,9 +262,7 @@
                                 <thead>
                                 <tr>
                                     <th scope="col"><?= __('Message') ?></th>
-                                    <th class="d-none d-lg-table-cell" scope="col"><?= __('Component') ?></th>
-                                    <th class="d-none d-lg-table-cell" scope="col"><?= __('Action') ?></th>
-                                    <th class="d-none d-lg-table-cell" scope="col"><?= __('Created') ?></th>
+                                    <th class="d-none d-lg-table-cell" scope="col"><?= __('Date/Time') ?></th>
                                     <th scope="col"><?= __('View') ?></th>
                                 </tr>
                                 </thead>
@@ -272,8 +270,6 @@
                                 <?php foreach ($audits as $audit) : ?>
                                     <tr>
                                         <td><?= h($audit->message) ?></td>
-                                        <td class="d-none align-middle d-lg-table-cell"><?= h($audit->component_name) ?></td>
-                                        <td class="d-none align-middle d-lg-table-cell"><?= h($audit->action_name) ?></td>
                                         <td class="d-none align-middle d-lg-table-cell"><?= h($audit->created) ?></td>
                                         <td class="text-middle"><?= $this->Html->link('<i class="bi bi-eye"></i>', ['controller' => 'audits', 'action' => 'view', $audit->id], ['escape' => false, 'class' => 'btn btn-sm btn-outline-primary']);?></td>
                                     </tr>

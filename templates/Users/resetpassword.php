@@ -2,115 +2,161 @@
 <html lang="en">
 
 <head>
-    <!-- Favicons -->
-    <link href="/phoenix/img/favicon.png" rel="icon">
-    <link href="/phoenix/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
+    <!-- CSS Files -->
     <link href="/phoenix/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/phoenix/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="/phoenix/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-    <link href="/phoenix/vendor/quill/quill.snow.css" rel="stylesheet">
-    <link href="/phoenix/vendor/quill/quill.bubble.css" rel="stylesheet">
-    <link href="/phoenix/vendor/remixicon/remixicon.css" rel="stylesheet">
-    <link href="/phoenix/vendor/simple-datatables/style.css" rel="stylesheet">
-
-    <!-- Template Main CSS File -->
     <link href="/phoenix/css/style.css" rel="stylesheet">
-<link rel="manifest" href="/manifest.json">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .password-reset-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            border-radius: 30px;
+            padding: 10px 15px;
+        }
+
+        .password-criteria {
+            margin-top: 15px;
+            font-size: 10px;
+            list-style: none;
+            padding-left: 0;
+            text-align: center;
+        }
+
+        .password-criteria li {
+            margin-bottom: 3px;
+            color: #dc3545; /* Red for unmet criteria */
+            transition: color 0.3s ease;
+        }
+
+        .password-criteria li.valid {
+            color: #28a745; /* Green for met criteria */
+        }
+
+        .btn-outline-primary {
+            border-radius: 30px;
+        }
+
+        .return-login {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .return-login a {
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .return-login a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
 
 <main>
-    <div class="container">
+    <section class="d-flex min-vh-100 align-items-center justify-content-center">
+        <div class="password-reset-container">
+            <div class="text-center mb-4">
+                <a href="/" class="logo d-flex align-items-center justify-content-center">
+                    <img src="/phoenix/img/logo.png" alt="MyHomeLearner Logo" style="width: 50px; height: auto;">
+                    <span class="ms-2 fw-bold">MyHomeLearner</span>
+                </a>
+            </div>
 
-        <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+            <div class="card p-4">
+                <div class="card-body">
+                    <?= $this->Flash->render() ?>
+                    <h5 class="text-center mb-4">Set Your New Password</h5>
 
-                        <div class="d-flex justify-content-center py-4">
-                            <a href="/" class="logo d-flex align-items-center w-auto">
-                                <img src="/phoenix/img/logo.png" alt="">
-                                <span class="d-none d-lg-block">MyHomeLearner</span>
-                            </a>
-                        </div><!-- End Logo -->
+                    <?= $this->Form->create(null, [
+                        'class' => 'needs-validation',
+                        'id' => 'resetPasswordForm'
+                    ]) ?>
 
-                        <div class="card mb-3">
+                    <div class="mb-3">
+                        <?= $this->Form->control('password', [
+                            'label' => false,
+                            'type' => 'password',
+                            'class' => 'form-control',
+                            'id' => 'newPassword',
+                            'placeholder' => 'Enter new password',
+                            'required' => true,
+                            'error' => 'Please enter your password!',
+                            'autocomplete' => 'off'
+                        ]); ?>
+                    </div>
 
-                            <div class="card-body">
-                                <div class="pt-4 pb-2">
-                                    <?= $this->Flash->render() ?>
-                                    <h5 class="card-title text-center pb-0 fs-4">Enter your new password</h5>
-                                </div>
-                                <?= $this->Form->create(null, [
-                                    'class' => 'row g-3 needs-validation',
-                                    'id' => 'resetPasswordForm'
-                                ]) ?>
+                    <ul class="password-criteria">
+                        <li id="uppercase">Contains an uppercase letter (A-Z)</li>
+                        <li id="lowercase">Contains a lowercase letter (a-z)</li>
+                        <li id="number">Contains a number (0-9)</li>
+                        <li id="special">Contains a special character</li>
+                        <li id="length">Is at least 8 characters long</li>
+                    </ul>
 
-                                <?= $this->Form->control('password', [
-                                    'label' => false,
-                                    'type' => 'password',
-                                    'class' => 'form-control',
-                                    'id' => 'newPassword',
-                                    'required' => true,
-                                    'error' => 'Please enter your password!',
-                                    'autocomplete' => 'off'
-                                ]); ?>
+                    <div class="d-grid">
+                        <?= $this->Form->button(__('Update Password'), ['class' => 'btn btn-outline-primary']) ?>
+                    </div>
 
-                                <div class="pt-2 text-center">
-                                    <h3><span id="uppercase" class="badge bg-danger shadow">A-Z</span>
-                                    <span id="lowercase" class="badge bg-danger shadow">a-z</span>
-                                    <span id="number" class="badge bg-danger shadow">0-9</span>
-                                    <span id="special" class="badge bg-danger shadow">!@#</span>
-                                    <span id="length" class="badge bg-danger shadow">x8</span>
-                                    </h3>
-                                </div>
-                                <div class="text-center">
-                                    <?= $this->Form->button(__('Update Password'), ['class' => 'w-100 btn btn-outline-primary']) ?>
-                                </div>
+                    <?= $this->Form->end() ?>
 
-                                <?= $this->Form->end() ?>
-
-                                <div class="col-12 mt-3 align-content-center">
-                                    <p class="small mb-0"><a href="/users/login">Return to Login</a></p>
-                                </div>
-
-                            </div>
-                        </div>
-
-
-
+                    <div class="return-login">
+                        <p><a href="/users/login">Return to Login</a></p>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+</main>
 
-        </section>
-
-    </div>
-</main><!-- End #main -->
-
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-<!-- Vendor JS Files -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="/phoenix/vendor/apexcharts/apexcharts.min.js"></script>
 <script src="/phoenix/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/phoenix/vendor/chart.js/chart.umd.js"></script>
-<script src="/phoenix/vendor/echarts/echarts.min.js"></script>
-<script src="/phoenix/vendor/quill/quill.min.js"></script>
-<script src="/phoenix/vendor/simple-datatables/simple-datatables.js"></script>
-<script src="/phoenix/vendor/tinymce/tinymce.min.js"></script>
-<script src="/phoenix/vendor/php-email-form/validate.js"></script>
+<script>
+    // Password validation logic
+    const passwordInput = document.getElementById('newPassword');
+    const criteria = {
+        uppercase: /[A-Z]/,
+        lowercase: /[a-z]/,
+        number: /[0-9]/,
+        special: /[!@#\$%\^&\*]/,
+        length: /.{8,}/,
+    };
 
-<!-- Template Main JS File -->
-<script src="/phoenix/js/main.js"></script>
-<script src="/phoenix/js/passwordcheck.js"></script>
+    passwordInput.addEventListener('input', () => {
+        Object.keys(criteria).forEach(id => {
+            const element = document.getElementById(id);
+            if (criteria[id].test(passwordInput.value)) {
+                element.classList.add('valid');
+            } else {
+                element.classList.remove('valid');
+            }
+        });
+    });
+</script>
 
 </body>
 

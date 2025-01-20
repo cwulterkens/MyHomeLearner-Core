@@ -5,37 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Reset Email</title>
     <style>
-        /* Reset styles */
         body, p {
             margin: 0;
             padding: 0;
         }
-
-        /* Email wrapper */
+        body {
+            background-color: #eef2f7;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+        }
         .email-wrapper {
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: #f2f2f2;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        /* Header */
         .header {
             padding: 20px;
-            background-color: #ffffff;
+            background-color: #eeeeee;
+            color: #333333;
             text-align: center;
         }
-
-        /* Content */
         .content {
             padding: 20px;
-            background-color: #ffffff;
             text-align: center;
         }
-
-        /* Button styles */
+        .content p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
         .button {
             display: inline-block;
             padding: 10px 20px;
@@ -44,43 +45,54 @@
             background-color: #007bff;
             color: #ffffff;
             border-radius: 4px;
+            transition: background-color 0.3s ease;
         }
-
-        .button a {
-            color: #ffffff;
-            text-decoration: none;
+        .button:hover {
+            background-color: #0056b3;
         }
-
-        /* Footer */
         .footer {
             padding: 20px;
             background-color: #f2f2f2;
             text-align: center;
             font-size: 12px;
+            line-height: 1.5;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 10px;
+            }
+            .content {
+                font-size: 14px;
+            }
+            .button {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+<div style="display: none; max-height: 0; overflow: hidden; line-height: 0; opacity: 0; color: #ffffff;">
+    You have a new notification waiting for you on MyHomeLearner.
+</div>
 <div class="email-wrapper">
     <div class="header">
-        <div style="height: 120px;">
-            <img src="https://www.myhomelearner.com/phoenix/img/logo.png" alt="" style="max-height: 100%; max-width: 100%;">
-        </div>
+        <img src="https://www.myhomelearner.com/phoenix/img/logo.png" alt="MyHomeLearner Logo" style="max-width: 100%; height: auto;">
         <h1>New Notification</h1>
     </div>
     <div class="content">
-        <p>Hello <?= $first_name?>,</p>
-        <p><?= $subject?></p>
-        <p><?= $content?></p>
-        <p> </p>
+        <p>Hello <?= $first_name ?? 'there' ?>,</p>
+        <p><?= $subject ?></p>
+        <p><?= $content ?></p>
         <p>
-            <a href="https://www.myhomelearner.com/notifications" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none; background-color: #007bff; color: #ffffff; border-radius: 4px;">
-                View My Notifications
+            <a href="https://www.myhomelearner.com/notifications" class="button">
+                🔔 View My Notifications
             </a>
         </p>
     </div>
     <div class="footer">
-        <p>&copy; 2023 MyHomeLearner. All rights reserved.</p>
+        <p>&copy; <?= date('Y') ?> MyHomeLearner. All rights reserved.</p>
+        <p>If you no longer wish to receive these notifications, <a href="https://www.myhomelearner.com/unsubscribe" style="color: #007bff;">click here to unsubscribe</a>.</p>
     </div>
 </div>
 </body>

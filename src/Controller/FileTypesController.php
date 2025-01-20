@@ -11,6 +11,11 @@ namespace App\Controller;
  */
 class FileTypesController extends AppController
 {
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('AuditLog');
+    }
     /**
      * Index method
      *
@@ -69,6 +74,15 @@ class FileTypesController extends AppController
         }
 
         $this->set(compact('fileType'));
+
+        AuditLogger::log([
+            'id' => \Cake\Utility\Text::uuid(),
+            'message' => 'Something happened.',
+            'user_id' => 'testusr',
+            'component_name' => 'SomeComponent',
+            'action_name' => 'someAction',
+            'ip' => 'testip',
+        ]);
     }
 
     /**

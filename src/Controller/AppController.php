@@ -16,12 +16,9 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
+use Cake\Controller\Component\AuthenticationComponent;
 use Cake\Controller\Controller;
 use Cake\ORM\TableRegistry;
-use Cake\Controller\Component\AuthenticationComponent;
-use Cake\Filesystem\File;
-use Cake\Utility\Text;
-use \Cake\Utility\Hash;
 
 /**
  * Application Controller
@@ -49,6 +46,7 @@ class AppController extends Controller
         $this->loadComponent('Flash');
         $this->loadComponent('Authentication.Authentication');
         $this->loadComponent('Authorization.Authorization');
+        $this->loadComponent('AuditLog', ['Audits' => $this->fetchTable('Audits')]);
         $this->set('currentUser', $this->Authentication->getIdentity());
 
         /*

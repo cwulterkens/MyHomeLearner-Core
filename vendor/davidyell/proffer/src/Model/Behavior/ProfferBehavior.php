@@ -129,6 +129,8 @@ class ProfferBehavior extends Behavior
         foreach ($uploadList as $upload) {
             /** @var \Laminas\Diactoros\UploadedFile $upload */
             try {
+                $upload->moveTo($path->fullPath());
+
                 $entity->set($field, $path->getFilename());
                 $entity->set($settings['dir'], $path->getSeed());
 
@@ -169,7 +171,7 @@ class ProfferBehavior extends Behavior
             $path = $event->getResult();
         }
 
-        //$path->createPathFolder();
+        $path->createPathFolder();
 
         return $path;
     }
